@@ -1,6 +1,10 @@
 import streamlit as st
-import jamo
 from jamo import h2j, j2hcj
+import unicodedata
+
+# 한글 여부 판단 함수
+def is_hangul_char(char):
+    return 'HANGUL' in unicodedata.name(char, '')
 
 # 자음과 모음 기호 매핑
 decompose_consonants = {
@@ -23,7 +27,7 @@ input_text = st.text_area("한글 입력", height=150)
 if st.button("변환하기"):
     result = ""
     for char in input_text:
-        if jamo.is_hangul(char):
+        if is_hangul_char(char):
             decomposed = list(j2hcj(h2j(char)))
             for j in decomposed:
                 if j in decompose_consonants:
