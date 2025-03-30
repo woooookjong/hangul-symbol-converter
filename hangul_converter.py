@@ -76,7 +76,11 @@ with tab1:
             else:
                 result += char
         st.text_area("기호 언어 출력", result, height=150, key="output1")
-        st.button("복사", on_click=st.session_state.__setitem__, args=("copy", result))
+
+        # 복사 버튼
+        components.html(f"""
+            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+        """, height=50)
 
 with tab2:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
@@ -94,15 +98,8 @@ with tab2:
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
 
-        # 복사 버튼
-        st.button("복사", on_click=st.session_state.__setitem__, args=("copy", result))
-
-        # 음성 읽기 (브라우저 TTS)
-        tts_script = f"""
-        <script>
-        var msg = new SpeechSynthesisUtterance("{result}");
-        window.speechSynthesis.speak(msg);
-        </script>
-        """
-        if st.button("🔊 읽어주기"):
-            components.html(tts_script)
+        # 복사 버튼 + 음성 읽기 버튼
+        components.html(f"""
+            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+            <button onclick=\"var msg = new SpeechSynthesisUtterance('{result}'); window.speechSynthesis.speak(msg);\">🔊 읽어주기</button>
+        """, height=60)
