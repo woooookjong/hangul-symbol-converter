@@ -81,12 +81,24 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
 
-        # 복사 버튼 + toast
+        # 복사 버튼 + JS toast 안내 메시지
         copy_code = f"""
         <script>
         function copyToClipboard(text) {{
             navigator.clipboard.writeText(text);
-            window.parent.postMessage({{ copied: true }}, "*");
+            let toast = document.createElement("div");
+            toast.innerText = "📋 복사 완료!";
+            toast.style.position = "fixed";
+            toast.style.bottom = "30px";
+            toast.style.right = "30px";
+            toast.style.backgroundColor = "#333";
+            toast.style.color = "white";
+            toast.style.padding = "10px 20px";
+            toast.style.borderRadius = "10px";
+            toast.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+            toast.style.zIndex = 1000;
+            document.body.appendChild(toast);
+            setTimeout(() => document.body.removeChild(toast), 2000);
         }}
         </script>
         <button onclick="copyToClipboard(`{st.session_state.symbol_result}`)"
@@ -94,28 +106,7 @@ with tabs[0]:
             📋 복사하기
         </button>
         """
-        components.html(copy_code, height=100)
-
-        # Streamlit toast 감지
-        st.session_state._copied_symbol = st.session_state.get("_copied_symbol", False)
-        components.html("""
-            <script>
-            window.addEventListener("message", (event) => {
-                if (event.data.copied) {{
-                    const streamlitEvent = new Event("streamlit:copied_symbol");
-                    window.dispatchEvent(streamlitEvent);
-                }}
-            });
-            </script>
-        """, height=0)
-
-        # 이벤트 리스너 (Python 쪽)
-        import streamlit.runtime.scriptrunner.script_run_context as script_context
-        from streamlit.runtime.scriptrunner import get_script_run_ctx
-
-        if get_script_run_ctx() and not st.session_state._copied_symbol:
-            st.session_state._copied_symbol = True
-            st.toast("📋 기호가 복사되었어요!", icon="✨")
+        components.html(copy_code, height=150)
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
@@ -128,42 +119,4 @@ with tabs[1]:
             elif char in reverse_vowels:
                 jamo_result += reverse_vowels[char]
             else:
-                jamo_result += char
-        result = join_jamos_manual(jamo_result)
-        st.session_state.hangul_result = result
-
-    if st.session_state.hangul_result:
-        st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
-
-        # 복사 버튼 + toast
-        copy_code = f"""
-        <script>
-        function copyToClipboard(text) {{
-            navigator.clipboard.writeText(text);
-            window.parent.postMessage({{ copied2: true }}, "*");
-        }}
-        </script>
-        <button onclick="copyToClipboard(`{st.session_state.hangul_result}`)"
-            style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'>
-            📋 복사하기
-        </button>
-        """
-        components.html(copy_code, height=100)
-
-        # Streamlit toast 감지
-        st.session_state._copied_hangul = st.session_state.get("_copied_hangul", False)
-        components.html("""
-            <script>
-            window.addEventListener("message", (event) => {
-                if (event.data.copied2) {{
-                    const streamlitEvent = new Event("streamlit:copied_hangul");
-                    window.dispatchEvent(streamlitEvent);
-                }}
-            });
-            </script>
-        """, height=0)
-
-        # 이벤트 리스너 (Python 쪽)
-        if get_script_run_ctx() and not st.session_state._copied_hangul:
-            st.session_state._copied_hangul = True
-            st.toast("📋 한글이 복사되었어요!", icon="🌸")
+                jamo_result_
