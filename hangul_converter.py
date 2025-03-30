@@ -50,35 +50,31 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
+st.title("🪶 고대 기호 한글 변환기")
 st.markdown("""
 <style>
-.button-box {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-.button-box button {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 6px 12px;
-    cursor: pointer;
+.pretty-button {
+    background-color: #f9e0f0;
+    border: 1px solid #d8a7ca;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: #6d2c77;
+    font-weight: bold;
     font-size: 14px;
-    transition: background-color 0.2s;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
 }
-.button-box button:hover {
-    background-color: #e0e0e0;
+.pretty-button:hover {
+    background-color: #f2cce4;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🪶 고대 기호 한글 변환기")
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 with tabs[0]:
-    st.subheader("한글 입력")
-    input_text = st.text_area("", height=150, key="input1")
+    input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
@@ -95,14 +91,11 @@ with tabs[0]:
                 result += char
         st.text_area("기호 언어 출력", result, height=150, key="output1")
         components.html(f"""
-        <div class='button-box'>
-            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        </div>
-        """, height=60)
+        <button class='pretty-button' onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+        """, height=50)
 
 with tabs[1]:
-    st.subheader("기호 입력")
-    symbol_input = st.text_area("", height=150, key="input2")
+    symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
         for char in symbol_input:
@@ -115,7 +108,5 @@ with tabs[1]:
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
         components.html(f"""
-        <div class='button-box'>
-            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        </div>
-        """, height=60)
+        <button class='pretty-button' onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+        """, height=50)
