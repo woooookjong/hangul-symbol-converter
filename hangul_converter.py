@@ -1,6 +1,7 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
+import streamlit.components.v1 as components
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -58,7 +59,7 @@ st.write("한글을 고대문자 스타일의 기호 언어로 바꾸거나, 다
 tab1, tab2 = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 with tab1:
-    input_text = st.text_area("한글 입력", height=150)
+    input_text = st.text_area("한글 입력", height=150, key="input1")
 
     if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
@@ -74,11 +75,11 @@ with tab1:
                         result += j
             else:
                 result += char
-        st.text_area("기호 언어 출력", result, height=150)
-        st.code(result, language='text')
+        st.text_area("기호 언어 출력", result, height=150, key="output1")
+        st.button("복사", on_click=st.session_state.__setitem__, args=("copy", result))
 
 with tab2:
-    symbol_input = st.text_area("기호 입력", height=150)
+    symbol_input = st.text_area("기호 입력", height=150, key="input2")
 
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
@@ -91,5 +92,17 @@ with tab2:
                 jamo_result += char
 
         result = join_jamos_manual(jamo_result)
-        st.text_area("복원된 한글 출력", result, height=150)
-        st.code(result, language='text')
+        st.text_area("복원된 한글 출력", result, height=150, key="output2")
+
+        # 복사 버튼
+        st.button("복사", on_click=st.session_state.__setitem__, args=("copy", result))
+
+        # 음성 읽기 (브라우저 TTS)
+        tts_script = f"""
+        <script>
+        var msg = new SpeechSynthesisUtterance("{result}");
+        window.speechSynthesis.speak(msg);
+        </script>
+        """
+        if st.button("🔊 읽어주기"):
+            components.html(tts_script)
