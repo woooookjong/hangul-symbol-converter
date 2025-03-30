@@ -53,6 +53,28 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
+st.markdown("""
+<style>
+.button-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.button-box button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.button-box button:hover {
+    background-color: #e0e0e0;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("🪶 고대 기호 한글 변환기")
 st.write("한글을 고대문자 스타일의 기호 언어로 바꾸거나, 다시 되돌릴 수 있습니다.")
 
@@ -61,18 +83,19 @@ tab1, tab2 = st.tabs(["한글 → 기호", "기호 → 한글"])
 with tab1:
     input_text = st.text_area("한글 입력", height=150, key="input1")
 
-    # 붙여넣기 버튼 (브라우저에서 클립보드 읽기)
     components.html("""
-        <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({type: 'paste_text', text: t}, '*'))">📥 붙여넣기</button>
+        <div class='button-box'>
+            <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({type: 'paste1', text: t}, '*'))">📥 붙여넣기</button>
+        </div>
         <script>
         window.addEventListener('message', (event) => {
-            if (event.data.type === 'paste_text') {
-                const textarea = window.parent.document.querySelector('textarea[data-streamlit-key='input1']');
+            if (event.data.type === 'paste1') {
+                const textarea = window.parent.document.querySelector('textarea[data-streamlit-key="input1"]');
                 if (textarea) textarea.value = event.data.text;
             }
         });
         </script>
-    """, height=50)
+    """, height=60)
 
     if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
@@ -90,13 +113,28 @@ with tab1:
                 result += char
         st.text_area("기호 언어 출력", result, height=150, key="output1")
 
-        # 복사 버튼
         components.html(f"""
-            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        """, height=50)
+            <div class='button-box'>
+                <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+            </div>
+        """, height=60)
 
 with tab2:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
+
+    components.html("""
+        <div class='button-box'>
+            <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({type: 'paste2', text: t}, '*'))">📥 붙여넣기</button>
+        </div>
+        <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'paste2') {
+                const textarea = window.parent.document.querySelector('textarea[data-streamlit-key="input2"]');
+                if (textarea) textarea.value = event.data.text;
+            }
+        });
+        </script>
+    """, height=60)
 
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
@@ -111,7 +149,8 @@ with tab2:
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
 
-        # 복사 버튼
         components.html(f"""
-            <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        """, height=50)
+            <div class='button-box'>
+                <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
+            </div>
+        """, height=60)
