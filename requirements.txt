@@ -1,3 +1,2 @@
 streamlit
 jamo
-hangul-utils
