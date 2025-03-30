@@ -96,7 +96,10 @@ def paste_script(target):
     </script>
     """
 
-with tab1 := st.tabs(["한글 → 기호"])[0]:
+# 탭 생성 및 분리
+tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
+
+with tabs[0]:
     st.subheader("한글 입력")
     if st.button("📥 붙여넣기", key="paste1"):
         components.html(paste_script("paste_text_1"), height=0)
@@ -119,7 +122,7 @@ with tab1 := st.tabs(["한글 → 기호"])[0]:
         st.text_area("기호 언어 출력", result, height=150, key="output1")
         components.html(f"<div class='button-box'><button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button></div>", height=60)
 
-with tab2 := st.tabs(["기호 → 한글"])[0]:
+with tabs[1]:
     st.subheader("기호 입력")
     if st.button("📥 붙여넣기", key="paste2"):
         components.html(paste_script("paste_text_2"), height=0)
