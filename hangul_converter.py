@@ -61,6 +61,19 @@ tab1, tab2 = st.tabs(["한글 → 기호", "기호 → 한글"])
 with tab1:
     input_text = st.text_area("한글 입력", height=150, key="input1")
 
+    # 붙여넣기 버튼 (브라우저에서 클립보드 읽기)
+    components.html("""
+        <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({type: 'paste_text', text: t}, '*'))">📥 붙여넣기</button>
+        <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'paste_text') {
+                const textarea = window.parent.document.querySelector('textarea[data-streamlit-key='input1']');
+                if (textarea) textarea.value = event.data.text;
+            }
+        });
+        </script>
+    """, height=50)
+
     if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
@@ -98,8 +111,7 @@ with tab2:
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
 
-        # 복사 버튼 + 음성 읽기 버튼
+        # 복사 버튼
         components.html(f"""
             <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-            <button onclick=\"var msg = new SpeechSynthesisUtterance('{result}'); window.speechSynthesis.speak(msg);\">🔊 읽어주기</button>
-        """, height=60)
+        """, height=50)
