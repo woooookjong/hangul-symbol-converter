@@ -1,6 +1,7 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
+from hangul_utils import join_jamos
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -60,24 +61,17 @@ with tab2:
             elif char in reverse_vowels:
                 buffer.append(reverse_vowels[char])
             else:
-                # 완성형 문자로 조합 시도
                 if buffer:
-                    while len(buffer) >= 2:
-                        ch1, ch2 = buffer.pop(0), buffer.pop(0)
-                        ch3 = buffer.pop(0) if buffer else ''
-                        try:
-                            combined = unicodedata.normalize('NFC', ch1 + ch2 + ch3)
-                        except:
-                            combined = ch1 + ch2 + ch3
-                        result += combined
+                    try:
+                        result += join_jamos(''.join(buffer))
+                    except:
+                        result += ''.join(buffer)
                     buffer = []
                 result += char
 
-        # 잔여 버퍼 처리
         if buffer:
             try:
-                combined = unicodedata.normalize('NFC', ''.join(buffer))
-                result += combined
+                result += join_jamos(''.join(buffer))
             except:
                 result += ''.join(buffer)
 
