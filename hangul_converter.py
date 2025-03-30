@@ -1,7 +1,6 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
-from hangul_utils import join_jamos
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -23,6 +22,20 @@ decompose_vowels = {
 # 역변환용 매핑 (기호 → 자모)
 reverse_consonants = {v: k for k, v in decompose_consonants.items()}
 reverse_vowels = {v: k for k, v in decompose_vowels.items()}
+
+# 한글 조합 함수
+def join_jamos_manual(jamos):
+    from jamo import assemble
+    result = ""
+    buffer = []
+    for j in jamos:
+        buffer.append(j)
+        try:
+            result += assemble(buffer)
+            buffer = []
+        except:
+            continue
+    return result
 
 st.title("🪶 고대 기호 한글 변환기")
 st.write("한글을 고대문자 스타일의 기호 언어로 바꾸거나, 다시 되돌릴 수 있습니다.")
@@ -53,27 +66,15 @@ with tab2:
     symbol_input = st.text_area("기호 입력", height=150)
 
     if st.button("한글로 되돌리기", key="to_korean"):
-        result = ""
-        buffer = []
+        jamo_result = ""
         for char in symbol_input:
             if char in reverse_consonants:
-                buffer.append(reverse_consonants[char])
+                jamo_result += reverse_consonants[char]
             elif char in reverse_vowels:
-                buffer.append(reverse_vowels[char])
+                jamo_result += reverse_vowels[char]
             else:
-                if buffer:
-                    try:
-                        result += join_jamos(''.join(buffer))
-                    except:
-                        result += ''.join(buffer)
-                    buffer = []
-                result += char
+                jamo_result += char
 
-        if buffer:
-            try:
-                result += join_jamos(''.join(buffer))
-            except:
-                result += ''.join(buffer)
-
+        result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150)
         st.code(result, language='text')
