@@ -1,6 +1,7 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
+import streamlit.components.v1 as components
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -50,7 +51,14 @@ def join_jamos_manual(jamos):
     return result
 
 st.title("🪶 고대 기호 한글 변환기")
+
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
+
+# 세션 초기화
+if "symbol_result" not in st.session_state:
+    st.session_state.symbol_result = ""
+if "hangul_result" not in st.session_state:
+    st.session_state.hangul_result = ""
 
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
@@ -68,8 +76,19 @@ with tabs[0]:
                         result += j
             else:
                 result += char
-        st.text_area("기호 언어 출력", result, height=150, key="output1")
-        st.button("📋 복사하기", on_click=lambda: st.session_state.update({"copied": result}))
+        st.session_state.symbol_result = result
+
+    if st.session_state.symbol_result:
+        st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
@@ -84,5 +103,16 @@ with tabs[1]:
             else:
                 jamo_result += char
         result = join_jamos_manual(jamo_result)
-        st.text_area("복원된 한글 출력", result, height=150, key="output2")
-        st.button("📋 복사하기", on_click=lambda: st.session_state.update({"copied": result}))
+        st.session_state.hangul_result = result
+
+    if st.session_state.hangul_result:
+        st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
