@@ -74,12 +74,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🪶 고대 기호 한글 변환기")
+tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
-input_text = st.text_area("한글 입력", height=150, key="input1")
-
-col1, col2 = st.columns(2)
-with col1:
-    if st.button("기호로 변환하기"):
+with tabs[0]:
+    st.subheader("한글 입력")
+    input_text = st.text_area("", height=150, key="input1")
+    if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
             if is_hangul_char(char):
@@ -100,19 +100,10 @@ with col1:
         </div>
         """, height=60)
 
-with col2:
-    components.html("""
-    <div class='button-box'>
-        <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({ type: 'streamlit:setComponentValue', value: t }, '*'))">
-        📥 붙여넣기</button>
-    </div>
-    """, height=60)
-
-symbol_input = st.text_area("기호 입력", height=150, key="input2")
-
-col3, col4 = st.columns(2)
-with col3:
-    if st.button("한글로 되돌리기"):
+with tabs[1]:
+    st.subheader("기호 입력")
+    symbol_input = st.text_area("", height=150, key="input2")
+    if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
         for char in symbol_input:
             if char in reverse_consonants:
@@ -121,7 +112,6 @@ with col3:
                 jamo_result += reverse_vowels[char]
             else:
                 jamo_result += char
-
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
         components.html(f"""
@@ -129,11 +119,3 @@ with col3:
             <button onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
         </div>
         """, height=60)
-
-with col4:
-    components.html("""
-    <div class='button-box'>
-        <button onclick="navigator.clipboard.readText().then(t => window.parent.postMessage({ type: 'streamlit:setComponentValue', value: t }, '*'))">
-        📥 붙여넣기</button>
-    </div>
-    """, height=60)
