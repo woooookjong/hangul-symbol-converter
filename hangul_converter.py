@@ -23,18 +23,33 @@ decompose_vowels = {
 reverse_consonants = {v: k for k, v in decompose_consonants.items()}
 reverse_vowels = {v: k for k, v in decompose_vowels.items()}
 
-# 한글 조합 함수
+# 초성, 중성, 종성 테이블
+CHOSUNG_LIST = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"]
+JUNGSUNG_LIST = ["ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ", "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"]
+JONGSUNG_LIST = ["", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ", "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"]
+
+# 자모 → 완성형 한글 조합 함수
 def join_jamos_manual(jamos):
-    from jamo import assemble
     result = ""
-    buffer = []
-    for j in jamos:
-        buffer.append(j)
-        try:
-            result += assemble(buffer)
-            buffer = []
-        except:
-            continue
+    i = 0
+    while i < len(jamos):
+        if jamos[i] in CHOSUNG_LIST:
+            cho = CHOSUNG_LIST.index(jamos[i])
+            if i + 1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
+                jung = JUNGSUNG_LIST.index(jamos[i+1])
+                jong = 0
+                if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                    jong = JONGSUNG_LIST.index(jamos[i+2])
+                    i += 1
+                code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
+                result += chr(code)
+                i += 2
+            else:
+                result += jamos[i]
+                i += 1
+        else:
+            result += jamos[i]
+            i += 1
     return result
 
 st.title("🪶 고대 기호 한글 변환기")
