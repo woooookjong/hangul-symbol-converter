@@ -1,7 +1,6 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
-import streamlit.components.v1 as components
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -51,26 +50,6 @@ def join_jamos_manual(jamos):
     return result
 
 st.title("🪶 고대 기호 한글 변환기")
-st.markdown("""
-<style>
-.pretty-button {
-    background-color: #f9e0f0;
-    border: 1px solid #d8a7ca;
-    border-radius: 20px;
-    padding: 8px 16px;
-    color: #6d2c77;
-    font-weight: bold;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px;
-}
-.pretty-button:hover {
-    background-color: #f2cce4;
-}
-</style>
-""", unsafe_allow_html=True)
-
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 with tabs[0]:
@@ -90,12 +69,11 @@ with tabs[0]:
             else:
                 result += char
         st.text_area("기호 언어 출력", result, height=150, key="output1")
-        components.html(f"""
-        <button class='pretty-button' onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        """, height=50)
+        st.button("📋 복사하기", on_click=lambda: st.session_state.update({"copied": result}))
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
+    st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
         for char in symbol_input:
@@ -107,6 +85,4 @@ with tabs[1]:
                 jamo_result += char
         result = join_jamos_manual(jamo_result)
         st.text_area("복원된 한글 출력", result, height=150, key="output2")
-        components.html(f"""
-        <button class='pretty-button' onclick=\"navigator.clipboard.writeText('{result}')\">📋 복사하기</button>
-        """, height=50)
+        st.button("📋 복사하기", on_click=lambda: st.session_state.update({"copied": result}))
