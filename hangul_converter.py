@@ -80,15 +80,24 @@ with tabs[0]:
 
     if st.session_state.symbol_result:
         st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
-        st.markdown(
-            f"""
-            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
-                📋 복사하기
-            </button>
-            """,
-            unsafe_allow_html=True,
-        )
+
+        # 복사 버튼 (JS 작동)
+        copy_code = f"""
+        <script>
+        function copyToClipboard(text) {{
+            navigator.clipboard.writeText(text).then(function() {{
+                alert("복사 완료! 🎉");
+            }}, function(err) {{
+                alert("복사 실패 ㅠㅠ");
+            }});
+        }}
+        </script>
+        <button onclick="copyToClipboard(`{st.session_state.symbol_result}`)"
+            style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'>
+            📋 복사하기
+        </button>
+        """
+        components.html(copy_code, height=100)
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
@@ -107,12 +116,21 @@ with tabs[1]:
 
     if st.session_state.hangul_result:
         st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
-        st.markdown(
-            f"""
-            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
-                📋 복사하기
-            </button>
-            """,
-            unsafe_allow_html=True,
-        )
+
+        # 복사 버튼 (JS 작동)
+        copy_code = f"""
+        <script>
+        function copyToClipboard(text) {{
+            navigator.clipboard.writeText(text).then(function() {{
+                alert("복사 완료! ✨");
+            }}, function(err) {{
+                alert("복사 실패 ㅠㅠ");
+            }});
+        }}
+        </script>
+        <button onclick="copyToClipboard(`{st.session_state.hangul_result}`)"
+            style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'>
+            📋 복사하기
+        </button>
+        """
+        components.html(copy_code, height=100)
