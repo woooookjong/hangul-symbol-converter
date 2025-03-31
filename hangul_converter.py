@@ -54,7 +54,6 @@ st.title("🪶 고대 기호 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
-# 세션 초기화
 if "symbol_result" not in st.session_state:
     st.session_state.symbol_result = ""
 if "hangul_result" not in st.session_state:
@@ -110,16 +109,18 @@ with tabs[0]:
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
+
     if st.button("한글로 되돌리기", key="to_korean"):
-        jamo_result = ""
+        jamo_list = []
         for char in symbol_input:
             if char in reverse_consonants:
-                jamo_result += reverse_consonants[char]
+                jamo_list.append(reverse_consonants[char])
             elif char in reverse_vowels:
-                jamo_result += reverse_vowels[char]
+                jamo_list.append(reverse_vowels[char])
             else:
-                jamo_result += char
-        result = join_jamos_manual(jamo_result)
+                jamo_list.append(char)
+
+        result = join_jamos_manual(jamo_list)
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
