@@ -7,7 +7,7 @@ import html
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 자음과 모음 기호 매핑 (초성, 중성, 종성 분리)
+# 초성, 중성, 종성 기호 매핑 (고대 스타일)
 decompose_chosung = {
     'ㄱ': '𐎀', 'ㄲ': '𐎁', 'ㄴ': '𐎂', 'ㄷ': '𐎃', 'ㄸ': '𐎄',
     'ㄹ': '𐎅', 'ㅁ': '𐎆', 'ㅂ': '𐎇', 'ㅃ': '𐎈', 'ㅅ': '𐎉',
@@ -110,20 +110,17 @@ with tabs[1]:
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
-        i = 0
-        while i < len(symbol_input):
-            c = symbol_input[i]
-            if c in reverse_chosung:
-                jamo_result += reverse_chosung[c]
-            elif c in reverse_jungsung:
-                jamo_result += reverse_jungsung[c]
-            elif c in reverse_jongsung:
-                jamo_result += reverse_jongsung[c]
-            elif c in reverse_punctuation:
-                jamo_result += reverse_punctuation[c]
+        for char in symbol_input:
+            if char in reverse_chosung:
+                jamo_result += reverse_chosung[char]
+            elif char in reverse_jungsung:
+                jamo_result += reverse_jungsung[char]
+            elif char in reverse_jongsung:
+                jamo_result += reverse_jongsung[char]
+            elif char in reverse_punctuation:
+                jamo_result += reverse_punctuation[char]
             else:
-                jamo_result += c
-            i += 1
+                jamo_result += char
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
