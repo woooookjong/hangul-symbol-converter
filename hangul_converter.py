@@ -117,15 +117,18 @@ with tabs[1]:
             c = symbol_input[i]
             if c in reverse_chosung:
                 cho = reverse_chosung[c]
-                jung = ''
-                jong = ''
                 if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i+1]]
                     if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
                         jong = reverse_jongsung[symbol_input[i+2]]
-                        i += 1
-                    jamo_result.extend([cho, jung, jong])
-                    i += 2
+                        jamo_result.extend([cho, jung, jong])
+                        i += 3
+                    else:
+                        jamo_result.extend([cho, jung])
+                        i += 2
+                else:
+                    jamo_result.append(cho)
+                    i += 1
                 else:
                     jamo_result.append(cho)
                     i += 1
