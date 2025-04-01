@@ -1,7 +1,7 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
-import streamlit.components.v1 as components
+import html
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -102,10 +102,21 @@ with tabs[0]:
 
     if st.session_state.symbol_result:
         st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
+
+        safe_symbol_result = html.escape(st.session_state.symbol_result).replace("\n", "\\n")
         st.markdown(
             f"""
+            <script>
+            function copyToClipboard(text) {{
+                navigator.clipboard.writeText(text).then(function() {{
+                    alert('복사 완료!');
+                }}, function(err) {{
+                    alert('복사 실패: ' + err);
+                }});
+            }}
+            </script>
             <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
+                    onclick="copyToClipboard('{safe_symbol_result}')">
                 📋 복사하기
             </button>
             """,
@@ -133,10 +144,21 @@ with tabs[1]:
 
     if st.session_state.hangul_result:
         st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
+
+        safe_hangul_result = html.escape(st.session_state.hangul_result).replace("\n", "\\n")
         st.markdown(
             f"""
+            <script>
+            function copyToClipboard(text) {{
+                navigator.clipboard.writeText(text).then(function() {{
+                    alert('복사 완료!');
+                }}, function(err) {{
+                    alert('복사 실패: ' + err);
+                }});
+            }}
+            </script>
             <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
+                    onclick="copyToClipboard('{safe_hangul_result}')">
                 📋 복사하기
             </button>
             """,
