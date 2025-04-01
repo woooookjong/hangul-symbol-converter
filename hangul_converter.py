@@ -9,8 +9,9 @@ def is_hangul_char(char):
 
 # 자음과 모음 기호 매핑 (중복 없는 고대 스타일)
 decompose_consonants = {
-    'ㄱ': '𐎀', 'ㄴ': '𐎐', 'ㄷ': '𐎂', 'ㄹ': '𐎑', 'ㅁ': '𐎄',
-    'ㅂ': '𐎅', 'ㅅ': '𐎃', 'ㅇ': '𐎊', 'ㅈ': '𐎆', 'ㅊ': '𐎇',
+    'ㄱ': '𐎀', 'ㄲ': '𐎁', 'ㄴ': '𐎐', 'ㄷ': '𐎂', 'ㄸ': '𐎃',
+    'ㄹ': '𐎑', 'ㅁ': '𐎄', 'ㅂ': '𐎅', 'ㅃ': '𐎆', 'ㅅ': '𐎇',
+    'ㅆ': '𐎈', 'ㅇ': '𐎊', 'ㅈ': '𐎋', 'ㅉ': '𐎌', 'ㅊ': '𐎍',
     'ㅋ': '𐎚', 'ㅌ': '𐎛', 'ㅍ': '𐎜', 'ㅎ': '𐎟'
 }
 
@@ -78,8 +79,8 @@ if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
 with tabs[0]:
-    input_text = st.text_area("한글 입력", height=150)
-    if st.button("기호로 변환하기"):
+    input_text = st.text_area("한글 입력", height=150, key="input1")
+    if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
             if char in punctuation_map:
@@ -100,12 +101,21 @@ with tabs[0]:
         st.session_state.symbol_result = result
 
     if st.session_state.symbol_result:
-        st.code(st.session_state.symbol_result, language="")
+        st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
 
 with tabs[1]:
-    symbol_input = st.text_area("기호 입력", height=150)
-    st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! 🐣</p>", unsafe_allow_html=True)
-    if st.button("한글로 되돌리기"):
+    symbol_input = st.text_area("기호 입력", height=150, key="input2")
+    st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
+    if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
         for char in symbol_input:
             if char in reverse_consonants:
@@ -122,4 +132,13 @@ with tabs[1]:
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
-        st.code(st.session_state.hangul_result, language="")
+        st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
