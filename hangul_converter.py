@@ -2,11 +2,11 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 한글 여부 판단 함수
+# 한글 여부 판단
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 (룬 문자)
+# 초성: 룬 문자
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -14,7 +14,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 (페니키아 문자)
+# 중성: 페니키아 문자
 decompose_jungsung = {
     'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃',
     'ㅓ': '𐤄', 'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇',
@@ -23,7 +23,7 @@ decompose_jungsung = {
     'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
 }
 
-# 종성 (룬 문자 뒤쪽)
+# 종성: 룬 확장 문자
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -33,13 +33,13 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 기호도 기호 느낌이 안 나도록 (유니코드 문자 스타일로 대체)
+# 구두점 → 고대 스타일 문자
 punctuation_map = {
     '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
     ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
 }
 
-# 역변환용 딕셔너리
+# 역매핑
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -49,6 +49,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
+# 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -65,14 +66,15 @@ def join_jamos_manual(jamos):
                 result += chr(code)
                 i += 2
             else:
+                result += jamos[i]
                 i += 1
         else:
             result += jamos[i]
             i += 1
     return result
 
+# Streamlit UI
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
-
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 if "symbol_result" not in st.session_state:
@@ -104,11 +106,12 @@ with tabs[0]:
         st.session_state.symbol_result = result
 
     if st.session_state.symbol_result:
-        st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
+        st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
+
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
         i = 0
@@ -117,20 +120,16 @@ with tabs[1]:
                 cho = reverse_chosung[symbol_input[i]]
                 if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i+1]]
-                    if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_chosung):
-                    jong = reverse_jongsung[symbol_input[i+2]]
-                    jamo_result.append(cho)
-                    jamo_result.append(jung)
-                    jamo_result.append(jong)
-                    i += 3
-    jong = reverse_jongsung[symbol_input[i+2]]
-    jamo_result.append(cho)
-    jamo_result.append(jung)
-    jamo_result.append(jong)
-    i += 3
+                    if (
+                        i + 2 < len(symbol_input)
+                        and symbol_input[i+2] in reverse_jongsung
+                        and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
+                    ):
+                        jong = reverse_jongsung[symbol_input[i+2]]
+                        jamo_result.extend([cho, jung, jong])
+                        i += 3
                     else:
-                        jamo_result.append(cho)
-                        jamo_result.append(jung)
+                        jamo_result.extend([cho, jung])
                         i += 2
                 else:
                     jamo_result.append(cho)
@@ -146,4 +145,4 @@ with tabs[1]:
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
-        st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
+        st.text_area("복원된 한글", st.session_state.hangul_result, height=150, key="output2")
