@@ -61,12 +61,11 @@ def join_jamos_manual(jamos):
                 jong = 0
                 if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     jong = JONGSUNG_LIST.index(jamos[i+2])
-                    i += 1  # 종성 스킵
+                    i += 1
                 code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
                 result += chr(code)
                 i += 2
             else:
-                result += jamos[i]
                 i += 1
         else:
             result += jamos[i]
@@ -115,32 +114,28 @@ with tabs[1]:
         jamo_result = []
         i = 0
         while i < len(symbol_input):
-            c = symbol_input[i]
-            if c in reverse_chosung:
-                cho = reverse_chosung[c]
+            if symbol_input[i] in reverse_chosung:
+                cho = reverse_chosung[symbol_input[i]]
                 if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i+1]]
                     if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
                         jong = reverse_jongsung[symbol_input[i+2]]
-                        jamo_result.extend([cho, jung, jong])
+                        jamo_result.append(cho)
+                        jamo_result.append(jung)
+                        jamo_result.append(jong)
                         i += 3
                     else:
-                        jamo_result.extend([cho, jung])
+                        jamo_result.append(cho)
+                        jamo_result.append(jung)
                         i += 2
                 else:
                     jamo_result.append(cho)
                     i += 1
-            elif c in reverse_jungsung:
-                jamo_result.append(reverse_jungsung[c])
-                i += 1
-            elif c in reverse_jongsung:
-                jamo_result.append(reverse_jongsung[c])
-                i += 1
-            elif c in reverse_punctuation:
-                jamo_result.append(reverse_punctuation[c])
+            elif symbol_input[i] in reverse_punctuation:
+                jamo_result.append(reverse_punctuation[symbol_input[i]])
                 i += 1
             else:
-                jamo_result.append(c)
+                jamo_result.append(symbol_input[i])
                 i += 1
 
         result = join_jamos_manual(jamo_result)
