@@ -91,13 +91,14 @@ with tabs[0]:
                 result += punctuation_map[char]
             elif is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
-                if len(decomposed) == 3:
-                    result += decompose_chosung.get(decomposed[0], decomposed[0])
-                    result += decompose_jungsung.get(decomposed[1], decomposed[1])
-                    result += decompose_jongsung.get(decomposed[2], decomposed[2])
-                elif len(decomposed) == 2:
-                    result += decompose_chosung.get(decomposed[0], decomposed[0])
-                    result += decompose_jungsung.get(decomposed[1], decomposed[1])
+                if len(decomposed) >= 2:
+                    cho = decomposed[0]
+                    jung = decomposed[1]
+                    jong = decomposed[2] if len(decomposed) == 3 else ''
+                    result += decompose_chosung.get(cho, cho)
+                    result += decompose_jungsung.get(jung, jung)
+                    if jong:
+                        result += decompose_jongsung.get(jong, jong)
                 else:
                     result += ''.join(decomposed)
             else:
@@ -126,12 +127,6 @@ with tabs[1]:
                     else:
                         jamo_result.extend([cho, jung])
                         i += 2
-                else:
-                    jamo_result.append(cho)
-                    i += 1
-                else:
-                    jamo_result.append(cho)
-                    i += 1
                 else:
                     jamo_result.append(cho)
                     i += 1
