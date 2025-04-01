@@ -33,7 +33,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 구두점 → 고대 스타일 문자
+# 구두점 → 고대 느낌 문자
 punctuation_map = {
     '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
     ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
@@ -49,7 +49,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 조합
+# 자모 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -74,6 +74,7 @@ def join_jamos_manual(jamos):
     return result
 
 # Streamlit UI
+st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -82,6 +83,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
+# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -108,6 +110,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
+# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
