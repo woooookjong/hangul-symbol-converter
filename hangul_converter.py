@@ -1,3 +1,4 @@
+
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
@@ -32,7 +33,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 구두점
+# 구두점 매핑
 punctuation_map = {
     '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
     ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
@@ -72,7 +73,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit UI
+# UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
@@ -125,7 +126,7 @@ with tabs[1]:
                     if (
                         i + 2 < len(symbol_input)
                         and symbol_input[i+2] in reverse_jongsung
-                        and symbol_input[i+2] not in reverse_chosung  # 🔥 핵심 조건
+                        and symbol_input[i+2] not in reverse_chosung
                         and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
                     ):
                         jong = reverse_jongsung[symbol_input[i+2]]
