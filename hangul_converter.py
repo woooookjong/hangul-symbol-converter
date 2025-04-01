@@ -36,8 +36,8 @@ decompose_jongsung = {
 
 # 기호도 기호 느낌이 안 나도록 (유니코드 문자 스타일로 대체)
 punctuation_map = {
-    '?': '꙰', '!': '⸘', '.': 'ꓘ', ',': 'ꗎ', ':': '꙳',
-    ';': 'ꗃ', '(': 'ꖴ', ')': 'ꗐ', '"': 'Ꞌ', "'": 'ꞌ'
+    '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
+    ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
 }
 
 # 역변환용 딕셔너리
@@ -116,18 +116,18 @@ with tabs[1]:
         while i < len(symbol_input):
             c = symbol_input[i]
             if c in reverse_chosung:
+                cho = reverse_chosung[c]
+                jung = ''
+                jong = ''
                 if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
+                    jung = reverse_jungsung[symbol_input[i+1]]
                     if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
-                        jamo_result.append(reverse_chosung[symbol_input[i]])
-                        jamo_result.append(reverse_jungsung[symbol_input[i+1]])
-                        jamo_result.append(reverse_jongsung[symbol_input[i+2]])
-                        i += 3
-                    else:
-                        jamo_result.append(reverse_chosung[symbol_input[i]])
-                        jamo_result.append(reverse_jungsung[symbol_input[i+1]])
-                        i += 2
+                        jong = reverse_jongsung[symbol_input[i+2]]
+                        i += 1
+                    jamo_result.extend([cho, jung, jong])
+                    i += 2
                 else:
-                    jamo_result.append(reverse_chosung[symbol_input[i]])
+                    jamo_result.append(cho)
                     i += 1
             elif c in reverse_jungsung:
                 jamo_result.append(reverse_jungsung[c])
