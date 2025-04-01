@@ -132,6 +132,9 @@ with tabs[1]:
                 else:
                     jamo_result.append(cho)
                     i += 1
+                else:
+                    jamo_result.append(cho)
+                    i += 1
             elif c in reverse_jungsung:
                 jamo_result.append(reverse_jungsung[c])
                 i += 1
