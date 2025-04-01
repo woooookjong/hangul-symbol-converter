@@ -1,54 +1,44 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
-import html
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 (룬 문자)
-decompose_chosung = {
-    'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
-    'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
-    'ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ',
-    'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
+# 자음과 모음 기호 매핑 (정방향)
+decompose_consonants = {
+    'ㄱ': '𐎀', 'ㄴ': '𐎐', 'ㄷ': '𐎂', 'ㄹ': '𐎑', 'ㅁ': '𐎄',
+    'ㅂ': '𐎅', 'ㅅ': '𐎃', 'ㅇ': '𐎊', 'ㅈ': '𐎆', 'ㅊ': '𐎇',
+    'ㅋ': '𐎚', 'ㅌ': '𐎛', 'ㅍ': '𐎜', 'ㅎ': '𐎟', 'ㄲ': '𐎝',
+    'ㄸ': '𐎞', 'ㅃ': '𐎠', 'ㅆ': '𐎡', 'ㅉ': '𐎢'
 }
 
-# 중성 (페니키아 문자)
-decompose_jungsung = {
-    'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃',
-    'ㅓ': '𐤄', 'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇',
-    'ㅗ': '𐤈', 'ㅛ': '𐤉', 'ㅜ': '𐤊', 'ㅠ': '𐤋',
-    'ㅡ': '𐤌', 'ㅣ': '𐤍', 'ㅘ': '𐤎', 'ㅙ': '𐤏',
-    'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
+decompose_vowels = {
+    'ㅏ': '𐎣', 'ㅑ': '𐎤', 'ㅓ': '𐎥', 'ㅕ': '𐎦', 'ㅗ': '𐎧',
+    'ㅛ': '𐎨', 'ㅜ': '𐎩', 'ㅠ': '𐎪', 'ㅡ': '𐎫', 'ㅣ': '𐎬',
+    'ㅐ': '𐎭', 'ㅒ': '𐎮', 'ㅔ': '𐎯', 'ㅖ': '𐎰', 'ㅘ': '𐎱',
+    'ㅙ': '𐎲', 'ㅚ': '𐎳', 'ㅝ': '𐎴', 'ㅞ': '𐎵', 'ㅟ': '𐎶', 'ㅢ': '𐎷'
 }
 
-# 종성 (룬 문자 뒤쪽)
-decompose_jongsung = {
-    '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
-    'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
-    'ㄻ': 'ᚼ', 'ㄼ': 'ᚽ', 'ㄽ': 'ᚾ', 'ㄾ': 'ᚿ', 'ㄿ': 'ᛀ',
-    'ㅀ': 'ᛁ', 'ㅁ': 'ᛂ', 'ㅂ': 'ᛃ', 'ㅄ': 'ᛄ', 'ㅅ': 'ᛅ',
-    'ㅆ': 'ᛆ', 'ㅇ': 'ᛇ', 'ㅈ': 'ᛈ', 'ㅊ': 'ᛉ', 'ㅋ': 'ᛊ',
-    'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
-}
+reverse_consonants = {v: k for k, v in decompose_consonants.items()}
+reverse_vowels = {v: k for k, v in decompose_vowels.items()}
 
-# 기호도 기호 느낌이 안 나도록 (유니코드 문자 스타일로 대체)
-punctuation_map = {
-    '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
-    ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
-}
+CHOSUNG_LIST = [
+    "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ",
+    "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+]
 
-# 역변환용 딕셔너리
-reverse_chosung = {v: k for k, v in decompose_chosung.items()}
-reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
-reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
-reverse_punctuation = {v: k for k, v in punctuation_map.items()}
+JUNGSUNG_LIST = [
+    "ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅘ",
+    "ㅙ", "ㅚ", "ㅛ", "ㅜ", "ㅝ", "ㅞ", "ㅟ", "ㅠ", "ㅡ", "ㅢ", "ㅣ"
+]
 
-CHOSUNG_LIST = list(decompose_chosung.keys())
-JUNGSUNG_LIST = list(decompose_jungsung.keys())
-JONGSUNG_LIST = list(decompose_jongsung.keys())
+JONGSUNG_LIST = [
+    "", "ㄱ", "ㄲ", "ㄳ", "ㄴ", "ㄵ", "ㄶ", "ㄷ", "ㄹ", "ㄺ", "ㄻ",
+    "ㄼ", "ㄽ", "ㄾ", "ㄿ", "ㅀ", "ㅁ", "ㅂ", "ㅄ", "ㅅ", "ㅆ",
+    "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+]
 
 def join_jamos_manual(jamos):
     result = ""
@@ -66,13 +56,14 @@ def join_jamos_manual(jamos):
                 result += chr(code)
                 i += 2
             else:
+                result += jamos[i]
                 i += 1
         else:
             result += jamos[i]
             i += 1
     return result
 
-st.title("ᚠ𐤀 고대 문자 한글 변환기")
+st.title("🪶 고대 기호 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -86,60 +77,54 @@ with tabs[0]:
     if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
-            if char in punctuation_map:
-                result += punctuation_map[char]
-            elif is_hangul_char(char):
+            if is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
-                if len(decomposed) >= 2:
-                    cho = decomposed[0]
-                    jung = decomposed[1]
-                    jong = decomposed[2] if len(decomposed) == 3 else ''
-                    result += decompose_chosung.get(cho, cho)
-                    result += decompose_jungsung.get(jung, jung)
-                    if jong:
-                        result += decompose_jongsung.get(jong, jong)
-                else:
-                    result += ''.join(decomposed)
+                for j in decomposed:
+                    if j in decompose_consonants:
+                        result += decompose_consonants[j]
+                    elif j in decompose_vowels:
+                        result += decompose_vowels[j]
+                    else:
+                        result += j
             else:
                 result += char
         st.session_state.symbol_result = result
 
     if st.session_state.symbol_result:
         st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150, key="output1")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
     if st.button("한글로 되돌리기", key="to_korean"):
-        jamo_result = []
-        i = 0
-        while i < len(symbol_input):
-            if symbol_input[i] in reverse_chosung:
-                cho = reverse_chosung[symbol_input[i]]
-                if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
-                    jung = reverse_jungsung[symbol_input[i+1]]
-                    if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
-                        jong = reverse_jongsung[symbol_input[i+2]]
-                        jamo_result.append(cho)
-                        jamo_result.append(jung)
-                        jamo_result.append(jong)
-                        i += 3
-                    else:
-                        jamo_result.append(cho)
-                        jamo_result.append(jung)
-                        i += 2
-                else:
-                    jamo_result.append(cho)
-                    i += 1
-            elif symbol_input[i] in reverse_punctuation:
-                jamo_result.append(reverse_punctuation[symbol_input[i]])
-                i += 1
+        jamo_result = ""
+        for char in symbol_input:
+            if char in reverse_consonants:
+                jamo_result += reverse_consonants[char]
+            elif char in reverse_vowels:
+                jamo_result += reverse_vowels[char]
             else:
-                jamo_result.append(symbol_input[i])
-                i += 1
-
+                jamo_result += char
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
         st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150, key="output2")
+        st.markdown(
+            f"""
+            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
+                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
+                📋 복사하기
+            </button>
+            """,
+            unsafe_allow_html=True,
+        )
