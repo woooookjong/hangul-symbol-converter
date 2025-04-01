@@ -1,6 +1,7 @@
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
+import streamlit.components.v1 as components
 
 # 한글 여부 판단 함수
 def is_hangul_char(char):
@@ -10,8 +11,8 @@ def is_hangul_char(char):
 decompose_consonants = {
     'ㄱ': '𐎀', 'ㄴ': '𐎐', 'ㄷ': '𐎂', 'ㄹ': '𐎑', 'ㅁ': '𐎄',
     'ㅂ': '𐎅', 'ㅅ': '𐎃', 'ㅇ': '𐎊', 'ㅈ': '𐎆', 'ㅊ': '𐎇',
-    'ㅋ': '𐎚', 'ㅌ': '𐎛', 'ㅍ': '𐎜', 'ㅎ': '𐎟', 'ㄲ': '𐎝',
-    'ㄸ': '𐎞', 'ㅃ': '𐎠', 'ㅆ': '𐎡', 'ㅉ': '𐎢'
+    'ㅋ': '𐎚', 'ㅌ': '𐎛', 'ㅍ': '𐎜', 'ㅎ': '𐎟',
+    'ㄲ': '𐎝', 'ㄸ': '𐎞', 'ㅃ': '𐎠', 'ㅆ': '𐎡', 'ㅉ': '𐎢'
 }
 
 decompose_vowels = {
@@ -63,6 +64,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
+st.set_page_config(page_title="고대 기호 한글 변환기", layout="centered")
 st.title("🪶 고대 기호 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
@@ -104,7 +106,16 @@ with tabs[0]:
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
-    st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
+    st.markdown("""
+        <div style='margin-bottom:10px;'>
+            <button onclick="document.getElementById('input2').focus(); document.execCommand('paste');"
+                    style='padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#eaeaea; cursor:pointer;'>
+                📥 붙여넣기
+            </button>
+            <span style='color: gray; font-size: 13px;'>또는 Ctrl+V / ⌘+V 로 직접 붙여넣기 🐣</span>
+        </div>
+    """, unsafe_allow_html=True)
+
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = ""
         for char in symbol_input:
