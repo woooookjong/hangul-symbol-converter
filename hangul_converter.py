@@ -100,16 +100,7 @@ with tabs[0]:
         st.session_state.symbol_result = result
 
     if st.session_state.symbol_result:
-        st.text_area("기호 언어 출력", st.session_state.symbol_result, height=150)
-        st.markdown(
-            f"""
-            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.symbol_result}')">
-                📋 복사하기
-            </button>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.code(st.session_state.symbol_result, language="")
 
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150)
@@ -131,13 +122,4 @@ with tabs[1]:
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
-        st.text_area("복원된 한글 출력", st.session_state.hangul_result, height=150)
-        st.markdown(
-            f"""
-            <button style='margin-top:10px; padding:8px 16px; border-radius:10px; border:1px solid #ccc; background-color:#f7f7f7; cursor:pointer;'
-                    onclick="navigator.clipboard.writeText('{st.session_state.hangul_result}')">
-                📋 복사하기
-            </button>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.code(st.session_state.hangul_result, language="")
