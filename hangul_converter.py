@@ -117,12 +117,12 @@ with tabs[1]:
                 cho = reverse_chosung[symbol_input[i]]
                 if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i+1]]
-                    if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
-                        jong = reverse_jongsung[symbol_input[i+2]]
-                        jamo_result.append(cho)
-                        jamo_result.append(jung)
-                        jamo_result.append(jong)
-                        i += 3
+                    if i + 2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_chosung):
+    jong = reverse_jongsung[symbol_input[i+2]]
+    jamo_result.append(cho)
+    jamo_result.append(jung)
+    jamo_result.append(jong)
+    i += 3
                     else:
                         jamo_result.append(cho)
                         jamo_result.append(jung)
