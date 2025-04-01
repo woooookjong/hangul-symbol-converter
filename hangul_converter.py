@@ -19,9 +19,8 @@ decompose_jungsung = {
     'ㅏ': '𐎓', 'ㅐ': '𐎔', 'ㅑ': '𐎕', 'ㅒ': '𐎖',
     'ㅓ': '𐎗', 'ㅔ': '𐎘', 'ㅕ': '𐎙', 'ㅖ': '𐎚',
     'ㅗ': '𐎛', 'ㅛ': '𐎜', 'ㅜ': '𐎝', 'ㅠ': '𐎞',
-    'ㅡ': '𐎟', 'ㅣ': '𐎠',
-    'ㅘ': '𐎡', 'ㅙ': '𐎢', 'ㅚ': '𐎣', 'ㅝ': '𐎤',
-    'ㅞ': '𐎥', 'ㅟ': '𐎦', 'ㅢ': '𐎧'
+    'ㅡ': '𐎟', 'ㅣ': '𐎠', 'ㅘ': '𐎡', 'ㅙ': '𐎢', 'ㅚ': '𐎣',
+    'ㅝ': '𐎤', 'ㅞ': '𐎥', 'ㅟ': '𐎦', 'ㅢ': '𐎧'
 }
 
 decompose_jongsung = {
@@ -109,18 +108,32 @@ with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
     if st.button("한글로 되돌리기", key="to_korean"):
-        jamo_result = ""
-        for char in symbol_input:
-            if char in reverse_chosung:
-                jamo_result += reverse_chosung[char]
-            elif char in reverse_jungsung:
-                jamo_result += reverse_jungsung[char]
-            elif char in reverse_jongsung:
-                jamo_result += reverse_jongsung[char]
-            elif char in reverse_punctuation:
-                jamo_result += reverse_punctuation[char]
+        jamo_result = []
+        i = 0
+        while i < len(symbol_input):
+            if symbol_input[i] in reverse_chosung:
+                cho = reverse_chosung[symbol_input[i]]
+                if i+1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
+                    jung = reverse_jungsung[symbol_input[i+1]]
+                    jong = ''
+                    if i+2 < len(symbol_input) and symbol_input[i+2] in reverse_jongsung:
+                        jong = reverse_jongsung[symbol_input[i+2]]
+                        i += 1
+                    jamo_result.extend([cho, jung, jong])
+                    i += 2
+                    continue
+                else:
+                    jamo_result.append(cho)
+            elif symbol_input[i] in reverse_jungsung:
+                jamo_result.append(reverse_jungsung[symbol_input[i]])
+            elif symbol_input[i] in reverse_jongsung:
+                jamo_result.append(reverse_jongsung[symbol_input[i]])
+            elif symbol_input[i] in reverse_punctuation:
+                jamo_result.append(reverse_punctuation[symbol_input[i]])
             else:
-                jamo_result += char
+                jamo_result.append(symbol_input[i])
+            i += 1
+
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
