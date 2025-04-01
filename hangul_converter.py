@@ -61,7 +61,7 @@ def join_jamos_manual(jamos):
                 jong = 0
                 if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     jong = JONGSUNG_LIST.index(jamos[i+2])
-                    i += 1
+                    i += 1  # 종성 스킵
                 code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
                 result += chr(code)
                 i += 2
