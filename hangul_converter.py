@@ -63,7 +63,7 @@ def join_jamos_manual(jamos):
             result += chr(0xAC00 + ((chosung * 21) + jungsung) * 28 + jongsung)
         else:
             break  # 중성이 없는 경우
-        return result
+    return result
 
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
