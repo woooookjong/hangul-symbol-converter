@@ -64,30 +64,6 @@ def join_jamos_manual(jamos):
         else:
             break  # 중성이 없는 경우
         return result
-"""
-# 자모 조합
-def join_jamos_manual(jamos):
-    result = ""
-    i = 0
-    while i < len(jamos):
-        # 초성 + 중성
-        if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
-            cho = CHOSUNG_LIST.index(jamos[i])
-            jung = JUNGSUNG_LIST.index(jamos[i+1])
-            jong = 0
-            # 종성이 존재하면
-            if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                jong = JONGSUNG_LIST.index(jamos[i+2])
-                i += 1  # 종성이 있으니까 하나 더 이동
-            syllable = chr(0xAC00 + ((cho * 21) + jung) * 28 + jong)
-            result += syllable
-            i += 2
-        else:
-            # 조합할 수 없는 단일 문자
-            result += jamos[i]
-            i += 1
-    return result
-"""
 
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
