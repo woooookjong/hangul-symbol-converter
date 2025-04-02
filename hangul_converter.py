@@ -40,36 +40,28 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 글자 구분자
-LETTER_SEPARATOR = '𐎁'
-
-# 자모 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
-        if jamos[i] in CHOSUNG_LIST:
+        if i+1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
-            if i+1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
-                jung = JUNGSUNG_LIST.index(jamos[i+1])
-                jong = 0
-                if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    jong = JONGSUNG_LIST.index(jamos[i+2])
-                    i += 1
-                code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
-                result += chr(code)
-                i += 2
-            else:
-                result += jamos[i]
+            jung = JUNGSUNG_LIST.index(jamos[i+1])
+            jong = 0
+            if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                jong = JONGSUNG_LIST.index(jamos[i+2])
                 i += 1
+            code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
+            result += chr(code)
+            i += 2
         else:
             result += jamos[i]
             i += 1
     return result
 
-# Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠ𐤀 고대 문자 한글 변환기 (완전 수정!)")
+st.title("ᚠ𐤀 고대 문자 한글 변환기")
+
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 if "symbol_result" not in st.session_state:
@@ -85,14 +77,15 @@ with tabs[0]:
         for char in input_text:
             if is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
-                cho = decomposed[0]
-                jung = decomposed[1]
-                jong = decomposed[2] if len(decomposed) == 3 else ''
-                result += decompose_chosung.get(cho, cho)
-                result += decompose_jungsung.get(jung, jung)
-                if jong:
-                    result += decompose_jongsung.get(jong, jong)
-                result += LETTER_SEPARATOR
+                for j in decomposed:
+                    if j in decompose_chosung:
+                        result += decompose_chosung[j]
+                    elif j in decompose_jungsung:
+                        result += decompose_jungsung[j]
+                    elif j in decompose_jongsung:
+                        result += decompose_jongsung[j]
+                    else:
+                        result += j
             else:
                 result += char
         st.session_state.symbol_result = result
@@ -103,23 +96,40 @@ with tabs[0]:
 # 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
-    st.markdown("<p style='color: gray; font-size: 13px;'>👉 복사한 기호를 붙여넣어 주세요! (각 글자: 𐎁 로 구분됨) 🐣</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
 
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
-        syllables = symbol_input.split(LETTER_SEPARATOR)
-        for block in syllables:
-            if len(block) >= 2 and block[0] in reverse_chosung and block[1] in reverse_jungsung:
-                cho = reverse_chosung[block[0]]
-                jung = reverse_jungsung[block[1]]
-                jong = ''
-                if len(block) == 3 and block[2] in reverse_jongsung and block[2] not in reverse_chosung:
-                    jong = reverse_jongsung[block[2]]
-                jamo_result.extend([cho, jung])
-                if jong:
-                    jamo_result.append(jong)
+        i = 0
+        while i < len(symbol_input):
+            if symbol_input[i] in reverse_chosung:
+                cho = reverse_chosung[symbol_input[i]]
+                if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
+                    jung = reverse_jungsung[symbol_input[i+1]]
+                    if (
+                        i + 2 < len(symbol_input)
+                        and symbol_input[i+2] in reverse_jongsung
+                        and symbol_input[i+2] not in reverse_chosung
+                        and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
+                    ):
+                        jong = reverse_jongsung[symbol_input[i+2]]
+                        jamo_result.extend([cho, jung, jong])
+                        i += 3
+                    else:
+                        jamo_result.extend([cho, jung])
+                        i += 2
+                else:
+                    jamo_result.append(cho)
+                    i += 1
+            elif symbol_input[i] in reverse_jungsung:
+                jamo_result.append(reverse_jungsung[symbol_input[i]])
+                i += 1
+            elif symbol_input[i] in reverse_jongsung:
+                jamo_result.append(reverse_jongsung[symbol_input[i]])
+                i += 1
             else:
-                jamo_result.extend(list(block))
+                jamo_result.append(symbol_input[i])
+                i += 1
 
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
