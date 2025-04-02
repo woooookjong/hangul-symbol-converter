@@ -1,21 +1,16 @@
-
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 한글 여부 판단
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성: 룬 문자 (ᚠ~ᚲ)
-decompose_chosung = {
-    'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
+# 초성, 중성, 종성 기호 (초성과 종성은 겹치지 않음)
+decompose_chosung = { 'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
     'ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ',
-    'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
-}
+    'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ' }
 
-# 중성: 페니키아 문자
 decompose_jungsung = {
     'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃', 'ㅓ': '𐤄',
     'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇', 'ㅗ': '𐤈', 'ㅛ': '𐤉',
@@ -23,7 +18,6 @@ decompose_jungsung = {
     'ㅙ': '𐤏', 'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
 }
 
-# 종성: 룬 확장 문자 (ᚳ~ᛍ)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -33,13 +27,11 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 구두점 매핑
 punctuation_map = {
     '?': '⸮', '!': '⸘', '.': '꞉', ',': '‚', ':': '⁚',
     ';': '⁏', '(': '❨', ')': '❩', '"': 'ˮ', "'": 'ʼ'
 }
 
-# 역매핑
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -49,17 +41,16 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
         if jamos[i] in CHOSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
-            if i + 1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
+            if i+1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
                 jong = 0
-                if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     jong = JONGSUNG_LIST.index(jamos[i+2])
                     i += 1
                 code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
@@ -73,80 +64,60 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# UI
-st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠ𐤀 고대 문자 한글 변환기")
-tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
+# Streamlit 디버그
+st.set_page_config(page_title="기호 복원 디버그")
+st.title("🔍 기호 → 한글 복원 디버깅")
 
-if "symbol_result" not in st.session_state:
-    st.session_state.symbol_result = ""
-if "hangul_result" not in st.session_state:
-    st.session_state.hangul_result = ""
+symbol_input = st.text_area("기호 입력", height=150)
+if st.button("복원 디버그 시작"):
+    jamo_result = []
+    logs = []
+    i = 0
+    while i < len(symbol_input):
+        current = symbol_input[i]
+        logs.append(f"[{i}] 문자: {current}")
 
-# 한글 → 기호
-with tabs[0]:
-    input_text = st.text_area("한글 입력", height=150, key="input1")
-    if st.button("기호로 변환하기", key="to_symbols"):
-        result = ""
-        for char in input_text:
-            if char in punctuation_map:
-                result += punctuation_map[char]
-            elif is_hangul_char(char):
-                decomposed = list(j2hcj(h2j(char)))
-                if len(decomposed) >= 2:
-                    cho = decomposed[0]
-                    jung = decomposed[1]
-                    jong = decomposed[2] if len(decomposed) == 3 else ''
-                    result += decompose_chosung.get(cho, cho)
-                    result += decompose_jungsung.get(jung, jung)
-                    if jong:
-                        result += decompose_jongsung.get(jong, jong)
+        if current in reverse_chosung:
+            cho = reverse_chosung[current]
+            logs.append(f"  ↳ 초성: {cho}")
+
+            if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
+                jung = reverse_jungsung[symbol_input[i+1]]
+                logs.append(f"  ↳ 중성: {jung}")
+
+                if (
+                    i + 2 < len(symbol_input)
+                    and symbol_input[i+2] in reverse_jongsung
+                    and symbol_input[i+2] not in reverse_chosung
+                    and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
+                ):
+                    jong = reverse_jongsung[symbol_input[i+2]]
+                    logs.append(f"  ↳ 종성: {jong}")
+                    jamo_result.extend([cho, jung, jong])
+                    i += 3
+                    continue
                 else:
-                    result += ''.join(decomposed)
+                    jamo_result.extend([cho, jung])
+                    i += 2
+                    continue
             else:
-                result += char
-        st.session_state.symbol_result = result
-
-    if st.session_state.symbol_result:
-        st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
-
-# 기호 → 한글
-with tabs[1]:
-    symbol_input = st.text_area("기호 입력", height=150, key="input2")
-    st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
-
-    if st.button("한글로 되돌리기", key="to_korean"):
-        jamo_result = []
-        i = 0
-        while i < len(symbol_input):
-            if symbol_input[i] in reverse_chosung:
-                cho = reverse_chosung[symbol_input[i]]
-                if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
-                    jung = reverse_jungsung[symbol_input[i+1]]
-                    if (
-                        i + 2 < len(symbol_input)
-                        and symbol_input[i+2] in reverse_jongsung
-                        and symbol_input[i+2] not in reverse_chosung
-                        and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
-                    ):
-                        jong = reverse_jongsung[symbol_input[i+2]]
-                        jamo_result.extend([cho, jung, jong])
-                        i += 3
-                    else:
-                        jamo_result.extend([cho, jung])
-                        i += 2
-                else:
-                    jamo_result.append(cho)
-                    i += 1
-            elif symbol_input[i] in reverse_punctuation:
-                jamo_result.append(reverse_punctuation[symbol_input[i]])
+                jamo_result.append(cho)
                 i += 1
-            else:
-                jamo_result.append(symbol_input[i])
-                i += 1
+                continue
 
-        result = join_jamos_manual(jamo_result)
-        st.session_state.hangul_result = result
+        elif current in reverse_punctuation:
+            logs.append(f"  ↳ 구두점: {reverse_punctuation[current]}")
+            jamo_result.append(reverse_punctuation[current])
+            i += 1
+        else:
+            logs.append("  ↳ 기타: 그대로 추가")
+            jamo_result.append(current)
+            i += 1
 
-    if st.session_state.hangul_result:
-        st.text_area("복원된 한글", st.session_state.hangul_result, height=150, key="output2")
+    result = join_jamos_manual(jamo_result)
+    st.subheader("🔁 복원 결과:")
+    st.write(result)
+
+    st.subheader("📝 디버그 로그:")
+    for line in logs:
+        st.text(line)
