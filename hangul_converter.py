@@ -36,34 +36,28 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 한글 자모 합치기 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
-        chosung = jamos[i]
-        i += 1
-        if i < len(jamos):
-            jungsung = jamos[i]
-
-            i += 1
-            jongsung = ''
-            # 종성인지 다음 글자 초성인지 확인
-            if i < len(jamos) :
-                jongsung = jamos[i]
-                i += 1
-                if i < len(jamos) :
-                    next_chr = jamos[i]
-
-                    if ord("ㄱ") > ord(next_chr) or ord(next_chr) > ord("ㅎ") :  # 자음 범위가 아님 (jongsung은 다음 글자 초성)
-                        jongsung = ""
-                        i -= 1
-
-            # 한글 문자로 합치기
-            result += chr(0xAC00 + ((chosung * 21) + jungsung) * 28 + jongsung)
+        # 초성 + 중성
+        if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
+            cho = CHOSUNG_LIST.index(jamos[i])
+            jung = JUNGSUNG_LIST.index(jamos[i+1])
+            jong = 0
+            # 종성이 존재하면
+            if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                jong = JONGSUNG_LIST.index(jamos[i+2])
+                i += 1  # 종성이 있으니까 하나 더 이동
+            syllable = chr(0xAC00 + (cho * 21 * 28) + (jung * 28) + jong)
+            result += syllable
+            i += 2
         else:
-            break  # 중성이 없는 경우
+            # 조합할 수 없는 단일 문자
+            result += jamos[i]
+            i += 1
     return result
+
 
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
