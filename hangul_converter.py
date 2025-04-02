@@ -69,7 +69,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 🅰️ 한글 → 기호
+# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -93,7 +93,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 🔁 기호 → 한글
+# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
@@ -101,16 +101,25 @@ with tabs[1]:
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
         while symbol_input:
-            if len(symbol_input) >= 2 and symbol_input[0] in reverse_chosung and symbol_input[1] in reverse_jungsung:
+            if symbol_input[0] in reverse_chosung:
                 cho = reverse_chosung[symbol_input[0]]
-                jung = reverse_jungsung[symbol_input[1]]
-                if len(symbol_input) >= 3 and symbol_input[2] in reverse_jongsung and symbol_input[2] not in reverse_chosung:
-                    jong = reverse_jongsung[symbol_input[2]]
-                    jamo_result.extend([cho, jung, jong])
-                    symbol_input = symbol_input[3:]
-                else:
-                    jamo_result.extend([cho, jung])
-                    symbol_input = symbol_input[2:]
+                symbol_input = symbol_input[1:]
+
+                jung = ''
+                jong = ''
+
+                if symbol_input and symbol_input[0] in reverse_jungsung:
+                    jung = reverse_jungsung[symbol_input[0]]
+                    symbol_input = symbol_input[1:]
+
+                    if symbol_input and symbol_input[0] in reverse_jongsung:
+                        if len(symbol_input) == 1 or symbol_input[1] in reverse_chosung:
+                            jong = reverse_jongsung[symbol_input[0]]
+                            symbol_input = symbol_input[1:]
+
+                jamo_result.extend([cho, jung])
+                if jong:
+                    jamo_result.append(jong)
             else:
                 jamo_result.append(symbol_input[0])
                 symbol_input = symbol_input[1:]
