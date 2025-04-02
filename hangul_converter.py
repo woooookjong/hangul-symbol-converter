@@ -5,23 +5,19 @@ import unicodedata
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 (룬 문자)
+# 자모 → 고대 문자 기호
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
     'ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ',
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
-
-# 중성 (페니키아 문자)
 decompose_jungsung = {
     'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃', 'ㅓ': '𐤄',
     'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇', 'ㅗ': '𐤈', 'ㅛ': '𐤉',
     'ㅜ': '𐤊', 'ㅠ': '𐤋', 'ㅡ': '𐤌', 'ㅣ': '𐤍', 'ㅘ': '𐤎',
     'ㅙ': '𐤏', 'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
 }
-
-# 종성 (룬 확장 문자)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -31,7 +27,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환 사전
+# 고대 문자 기호 → 자모
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -40,7 +36,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합 함수
+# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -60,7 +56,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit 앱 설정
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
 
@@ -71,7 +66,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 🅰️ 한글 → 기호
+# 🔤 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -79,7 +74,8 @@ with tabs[0]:
         for char in input_text:
             if is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
-                cho, jung = decomposed[0], decomposed[1]
+                cho = decomposed[0]
+                jung = decomposed[1]
                 jong = decomposed[2] if len(decomposed) == 3 else ''
                 result += decompose_chosung.get(cho, cho)
                 result += decompose_jungsung.get(jung, jung)
@@ -100,23 +96,25 @@ with tabs[1]:
         jamo_result = []
         i = 0
         while i < len(symbol_input):
-            char = symbol_input[i]
-            if char in reverse_chosung:
-                cho = reverse_chosung[char]
+            if symbol_input[i] in reverse_chosung:
+                cho = reverse_chosung[symbol_input[i]]
                 i += 1
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
                     if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                        jong = reverse_jongsung[symbol_input[i]]
-                        i += 1
-                        jamo_result.extend([cho, jung, jong])
+                        if i+1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
+                            jong = reverse_jongsung[symbol_input[i]]
+                            i += 1
+                            jamo_result.extend([cho, jung, jong])
+                        else:
+                            jamo_result.extend([cho, jung])
                     else:
                         jamo_result.extend([cho, jung])
                 else:
                     jamo_result.append(cho)
             else:
-                jamo_result.append(char)
+                jamo_result.append(symbol_input[i])
                 i += 1
 
         result = join_jamos_manual(jamo_result)
