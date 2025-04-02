@@ -43,7 +43,7 @@ JONGSUNG_LIST = list(decompose_jongsung.keys())
 # 글자 구분자
 LETTER_SEPARATOR = '𐎁'
 
-# 조합 함수
+# 자모 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -67,9 +67,9 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit 시작
+# Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠ𐤀 고대 문자 한글 변환기 (글자 구분자 포함)")
+st.title("ᚠ𐤀 고대 문자 한글 변환기 (완전 수정!)")
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
 if "symbol_result" not in st.session_state:
@@ -103,7 +103,7 @@ with tabs[0]:
 # 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
-    st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 입력해 주세요! (각 글자는 𐎁 로 구분됨) 🐣</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: gray; font-size: 13px;'>👉 복사한 기호를 붙여넣어 주세요! (각 글자: 𐎁 로 구분됨) 🐣</p>", unsafe_allow_html=True)
 
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
@@ -113,7 +113,7 @@ with tabs[1]:
                 cho = reverse_chosung[block[0]]
                 jung = reverse_jungsung[block[1]]
                 jong = ''
-                if len(block) == 3 and block[2] in reverse_jongsung:
+                if len(block) == 3 and block[2] in reverse_jongsung and block[2] not in reverse_chosung:
                     jong = reverse_jongsung[block[2]]
                 jamo_result.extend([cho, jung])
                 if jong:
