@@ -31,6 +31,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
+# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -39,6 +40,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
+# 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -85,8 +87,6 @@ with tabs[0]:
                     cho, jung = decomposed
                     result += decompose_chosung.get(cho, cho)
                     result += decompose_jungsung.get(jung, jung)
-                else:
-                    result += ''.join(decomposed)
             else:
                 result += char
         st.session_state.symbol_result = result
@@ -101,36 +101,20 @@ with tabs[1]:
 
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
-        i = 0
-        while i < len(symbol_input):
-            if symbol_input[i] in reverse_chosung:
-                cho = reverse_chosung[symbol_input[i]]
-                if i + 1 < len(symbol_input) and symbol_input[i+1] in reverse_jungsung:
-                    jung = reverse_jungsung[symbol_input[i+1]]
-                    if (
-                        i + 2 < len(symbol_input)
-                        and symbol_input[i+2] in reverse_jongsung
-                        and symbol_input[i+2] not in reverse_chosung
-                        and (i + 3 >= len(symbol_input) or symbol_input[i+3] not in reverse_jungsung)
-                    ):
-                        jong = reverse_jongsung[symbol_input[i+2]]
-                        jamo_result.extend([cho, jung, jong])
-                        i += 3
-                    else:
-                        jamo_result.extend([cho, jung])
-                        i += 2
+        while symbol_input:
+            if len(symbol_input) >= 2 and symbol_input[0] in reverse_chosung and symbol_input[1] in reverse_jungsung:
+                cho = reverse_chosung[symbol_input[0]]
+                jung = reverse_jungsung[symbol_input[1]]
+                if len(symbol_input) >= 3 and symbol_input[2] in reverse_jongsung and symbol_input[2] not in reverse_chosung:
+                    jong = reverse_jongsung[symbol_input[2]]
+                    jamo_result.extend([cho, jung, jong])
+                    symbol_input = symbol_input[3:]
                 else:
-                    jamo_result.append(cho)
-                    i += 1
-            elif symbol_input[i] in reverse_jungsung:
-                jamo_result.append(reverse_jungsung[symbol_input[i]])
-                i += 1
-            elif symbol_input[i] in reverse_jongsung:
-                jamo_result.append(reverse_jongsung[symbol_input[i]])
-                i += 1
+                    jamo_result.extend([cho, jung])
+                    symbol_input = symbol_input[2:]
             else:
-                jamo_result.append(symbol_input[i])
-                i += 1
+                jamo_result.append(symbol_input[0])
+                symbol_input = symbol_input[1:]
 
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
