@@ -36,6 +36,35 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
+# 한글 자모 합치기 함수
+def join_jamos_manual(jamos):
+    result = ""
+    i = 0
+    while i < len(jamos):
+        chosung = jamos[i]
+        i += 1
+        if i < len(jamos):
+            jungsung = jamos[i]
+
+            i += 1
+            jongsung = ''
+            # 종성인지 다음 글자 초성인지 확인
+            if i < len(jamos) :
+                jongsung = jamos[i]
+                i += 1
+                if i < len(jamos) :
+                    next_chr = jamos[i]
+
+                    if ord("ㄱ") > ord(next_chr) or ord(next_chr) > ord("ㅎ") :  # 자음 범위가 아님 (jongsung은 다음 글자 초성)
+                        jongsung = ""
+                        i -= 1
+
+            # 한글 문자로 합치기
+            result += chr(0xAC00 + ((chosung * 21) + jungsung) * 28 + jongsung)
+        else:
+            break  # 중성이 없는 경우
+        return result
+"""
 # 자모 조합
 def join_jamos_manual(jamos):
     result = ""
@@ -58,6 +87,7 @@ def join_jamos_manual(jamos):
             result += jamos[i]
             i += 1
     return result
+"""
 
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
