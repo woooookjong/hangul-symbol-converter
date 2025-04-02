@@ -2,7 +2,7 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 한글 여부 판단
+# 한글 여부
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
@@ -14,16 +14,16 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 (페니키아 문자)
+# 중성 (고대 문자 느낌)
 decompose_jungsung = {
-    'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃',
-    'ㅓ': '𐤄', 'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇',
-    'ㅗ': '𐤈', 'ㅛ': '𐤉', 'ㅜ': '𐤊', 'ㅠ': '𐤋',
-    'ㅡ': '𐤌', 'ㅣ': '𐤍', 'ㅘ': '𐤎', 'ㅙ': '𐤏',
-    'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
+    'ㅏ': 'Ꝃ', 'ㅐ': 'Ꝙ', 'ㅑ': 'ᛇ', 'ㅒ': 'ꝛ', 'ㅓ': 'ᚬ',
+    'ㅔ': 'ꝙ', 'ㅕ': 'ᛠ', 'ㅖ': 'Ꝛ', 'ㅗ': 'ᛟ', 'ㅛ': 'ᛡ',
+    'ㅜ': 'ᚣ', 'ㅠ': 'ᛥ', 'ㅡ': 'ᛦ', 'ㅣ': 'ᛁ',
+    'ㅘ': 'Ꝝ', 'ㅙ': 'ꝝ', 'ㅚ': 'Ꝟ', 'ㅝ': 'ꝟ',
+    'ㅞ': 'Ꝡ', 'ㅟ': 'ꝡ', 'ㅢ': 'Ꝣ'
 }
 
-# 종성 (룬 문자 뒤쪽)
+# 종성 (룬 확장 문자)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -33,7 +33,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환용 딕셔너리
+# 역변환 맵
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -42,7 +42,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 결합 함수
+# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -66,7 +66,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit 앱 UI
+# Streamlit 앱
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐤀 고대 문자 한글 변환기")
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
@@ -76,9 +76,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# -----------------------------
-# 한글 → 기호
-# -----------------------------
+# 탭 1: 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -103,9 +101,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# -----------------------------
-# 기호 → 한글
-# -----------------------------
+# 탭 2: 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 클립보드에 복사한 기호를 여기에 붙여넣어 주세요! (Ctrl+V 또는 ⌘+V) 🐣</p>", unsafe_allow_html=True)
