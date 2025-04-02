@@ -50,7 +50,7 @@ def join_jamos_manual(jamos):
             if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                 jong = JONGSUNG_LIST.index(jamos[i+2])
                 i += 1  # 종성이 있으니까 하나 더 이동
-            syllable = chr(0xAC00 + (cho * 21 * 28) + (jung * 28) + jong)
+            syllable = chr(0xAC00 + ((cho * 21) + jung) * 28 + jong)
             result += syllable
             i += 2
         else:
