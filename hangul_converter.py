@@ -40,7 +40,6 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -70,7 +69,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
+# 🅰️ 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -94,7 +93,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 기호 → 한글
+# 🔁 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
@@ -120,4 +119,5 @@ with tabs[1]:
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
-        st.text_area("복원된 한글", st.session_state.hangul_result, height=150, key="output2")
+        st.markdown("### 복원된 한글:")
+        st.success(st.session_state.hangul_result)
