@@ -21,7 +21,7 @@ decompose_jungsung = {
     'ㅙ': '𐤏', 'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
 }
 
-# 종성 (룬 확장)
+# 종성 (룬 확장 문자)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -31,7 +31,6 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -77,15 +76,17 @@ with tabs[0]:
         for char in input_text:
             if is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
-                for j in decomposed:
-                    if j in decompose_chosung:
-                        result += decompose_chosung[j]
-                    elif j in decompose_jungsung:
-                        result += decompose_jungsung[j]
-                    elif j in decompose_jongsung:
-                        result += decompose_jongsung[j]
-                    else:
-                        result += j
+                if len(decomposed) == 3:
+                    cho, jung, jong = decomposed
+                    result += decompose_chosung.get(cho, cho)
+                    result += decompose_jungsung.get(jung, jung)
+                    result += decompose_jongsung.get(jong, jong)
+                elif len(decomposed) == 2:
+                    cho, jung = decomposed
+                    result += decompose_chosung.get(cho, cho)
+                    result += decompose_jungsung.get(jung, jung)
+                else:
+                    result += ''.join(decomposed)
             else:
                 result += char
         st.session_state.symbol_result = result
