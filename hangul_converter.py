@@ -39,6 +39,8 @@ JONGSUNG_LIST = list(decompose_jongsung.keys())
 # 자모 조합
 def join_jamos_manual(jamos):
     result = ""
+    for i in jamos:
+        result += i
     i = 0
     while i < len(jamos):
         if i+1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
