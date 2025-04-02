@@ -39,21 +39,22 @@ JONGSUNG_LIST = list(decompose_jongsung.keys())
 # 자모 조합
 def join_jamos_manual(jamos):
     result = ""
-    for i in jamos:
-        result += i
     i = 0
     while i < len(jamos):
-        if i+1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
+        # 초성 + 중성
+        if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
             jung = JUNGSUNG_LIST.index(jamos[i+1])
             jong = 0
-            if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+            # 종성이 존재하면
+            if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                 jong = JONGSUNG_LIST.index(jamos[i+2])
-                i += 1
-            code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
-            result += chr(code)
+                i += 1  # 종성이 있으니까 하나 더 이동
+            syllable = chr(0xAC00 + (cho * 21 * 28) + (jung * 28) + jong)
+            result += syllable
             i += 2
         else:
+            # 조합할 수 없는 단일 문자
             result += jamos[i]
             i += 1
     return result
