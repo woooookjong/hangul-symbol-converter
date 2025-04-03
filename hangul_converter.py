@@ -29,7 +29,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 기호 → 자모
+# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -38,20 +38,20 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합 함수
+# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
-        if i+1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
+        if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
             jung = JUNGSUNG_LIST.index(jamos[i+1])
             jong = 0
-            if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+            if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                 jong = JONGSUNG_LIST.index(jamos[i+2])
                 i += 1
-            syllable = chr(0xAC00 + (cho * 21 * 28) + (jung * 28) + jong)
-            result += syllable
+            code = 0xAC00 + (cho * 21 * 28) + (jung * 28) + jong
+            result += chr(code)
             i += 2
         else:
             result += jamos[i]
@@ -90,7 +90,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 기호 → 한글
+# 기호 → 한글 (초성 기준 음절 구분)
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
@@ -102,21 +102,19 @@ with tabs[1]:
             if symbol_input[i] in reverse_chosung:
                 cho = reverse_chosung[symbol_input[i]]
                 i += 1
+                jung = ''
+                jong = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
                     if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                        # 종성인지 확인 (다음이 초성이면 종성으로 인정)
-                        if i+1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
+                        # 종성 다음이 초성이면 종성으로 인정
+                        if i + 1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
                             jong = reverse_jongsung[symbol_input[i]]
                             i += 1
-                            jamo_result.extend([cho, jung, jong])
-                        else:
-                            jamo_result.extend([cho, jung])
-                    else:
-                        jamo_result.extend([cho, jung])
-                else:
-                    jamo_result.append(cho)
+                jamo_result.extend([cho, jung])
+                if jong:
+                    jamo_result.append(jong)
             else:
                 jamo_result.append(symbol_input[i])
                 i += 1
