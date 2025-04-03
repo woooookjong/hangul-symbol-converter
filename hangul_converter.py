@@ -13,7 +13,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (초성·종성과 겹치지 않는 문자셋)
+# 중성 기호 (초성·종성과 절대 겹치지 않는 문자셋)
 decompose_jungsung = {
     'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
     'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
@@ -40,7 +40,6 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모를 조합해 완성형 한글 만들기
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -60,7 +59,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠⴰ 고대 문자 한글 변환기")
 
@@ -71,7 +69,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# ▶ 한글 → 기호
+# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -92,41 +90,55 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# ▶ 기호 → 한글
+# 기호 → 한글 (디버그 포함)
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
 
     if st.button("한글로 되돌리기", key="to_korean"):
+        st.write("▶ 원본 symbol_input 문자열:", symbol_input)
+        st.write("▶ symbol_input 리스트:", list(symbol_input))
+
         jamo_result = []
         i = 0
         while i < len(symbol_input):
             char = symbol_input[i]
             if char in reverse_chosung:
                 cho = reverse_chosung[char]
+                st.write(f"[{i}] ▶ '{char}' → 초성 인식: {cho}")
                 i += 1
 
                 jung = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
+                    st.write(f"[{i}] ▶ '{symbol_input[i]}' → 중성 인식: {jung}")
                     i += 1
 
                 jong = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
                     if i + 1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
                         jong = reverse_jongsung[symbol_input[i]]
+                        st.write(f"[{i}] ▶ '{symbol_input[i]}' → 종성 인식: {jong}")
                         i += 1
 
                 jamo_result.extend([cho, jung])
                 if jong:
                     jamo_result.append(jong)
             else:
+                st.write(f"[{i}] ▶ '{char}' → 초성 아님, 단독 처리")
                 jamo_result.append(char)
                 i += 1
 
+        st.write("✅ 최종 jamo_result 리스트:", jamo_result)
+
         result = join_jamos_manual(jamo_result)
+        st.write("✅ 최종 복원 결과:", result)
         st.session_state.hangul_result = result
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
         st.success(st.session_state.hangul_result)
+
+    # 디버그: 매핑 확인
+    st.write("📌 reverse_jungsung['ⴽ'] =", reverse_jungsung.get('ⴽ'))  # 'ㅣ'
+    st.write("📌 reverse_jungsung['ⴺ'] =", reverse_jungsung.get('ⴺ'))  # 'ㅜ'
