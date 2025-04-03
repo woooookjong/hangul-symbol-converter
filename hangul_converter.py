@@ -5,7 +5,7 @@ import unicodedata
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 자모 → 고대 문자 기호
+# 초성 기호 (룬 문자 기반)
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -13,13 +13,15 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
+# 중성 기호 (겹치지 않는 문자 사용)
 decompose_jungsung = {
-    'ㅏ': '𐤀', 'ㅐ': '𐤁', 'ㅑ': '𐤂', 'ㅒ': '𐤃', 'ㅓ': '𐤄',
-    'ㅔ': '𐤅', 'ㅕ': '𐤆', 'ㅖ': '𐤇', 'ㅗ': '𐤈', 'ㅛ': '𐤉',
-    'ㅜ': '𐤊', 'ㅠ': '𐤋', 'ㅡ': '𐤌', 'ㅣ': '𐤍', 'ㅘ': '𐤎',
-    'ㅙ': '𐤏', 'ㅚ': '𐤐', 'ㅝ': '𐤑', 'ㅞ': '𐤒', 'ㅟ': '𐤓', 'ㅢ': '𐤔'
+    'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
+    'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
+    'ㅜ': 'ⴺ', 'ㅠ': 'ⴻ', 'ㅡ': 'ⴼ', 'ㅣ': 'ⴽ', 'ㅘ': 'ⴾ',
+    'ㅙ': 'ⴿ', 'ㅚ': 'ⵀ', 'ㅝ': 'ⵁ', 'ㅞ': 'ⵂ', 'ㅟ': 'ⵃ', 'ㅢ': 'ⵄ'
 }
 
+# 종성 기호 (룬 확장)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -29,7 +31,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환
+# 역변환 사전
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -38,7 +40,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합
+# 한글 자모를 조합해 완성형 문자로
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -58,9 +60,9 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit 앱
+# Streamlit 앱 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠ𐤀 고대 문자 한글 변환기")
+st.title("ᚠⴰ 고대 문자 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -69,7 +71,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
+# 🔤 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -90,7 +92,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 기호 → 한글 (초성 기준 음절 구분)
+# 🔁 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("<p style='color: gray; font-size: 13px;'>👉 기호를 붙여넣어 주세요!</p>", unsafe_allow_html=True)
@@ -108,7 +110,6 @@ with tabs[1]:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
                     if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                        # 종성 다음이 초성이면 종성으로 인정
                         if i + 1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
                             jong = reverse_jongsung[symbol_input[i]]
                             i += 1
