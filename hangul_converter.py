@@ -1,3 +1,4 @@
+
 import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
@@ -44,8 +45,8 @@ def join_jamos_manual(jamos):
             result += jamos[i]
             i += 1
     return result
+# Streamlit UI + 변환 처리 (계속)
 
-# Streamlit 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -99,13 +100,12 @@ with tabs[1]:
                 jamo_result.append(reverse_special[ch])
                 i += 1
             elif ch in reverse_chosung:
-                # 초성은 반드시 중성이 따라와야 함
+                # 초성은 반드시 중성이 뒤따라야 함
                 if next_ch in reverse_jungsung:
                     cho = reverse_chosung[ch]
                     jung = reverse_jungsung[next_ch]
                     jong = ''
                     if next_next_ch in reverse_jongsung:
-                        # 종성 조건: 다음이 초성, 띄어쓰기, 기호, 끝
                         next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
                         if next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 in reverse_special or next4 == '':
                             jong = reverse_jongsung[next_next_ch]
@@ -118,7 +118,11 @@ with tabs[1]:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    jamo_result.append(reverse_chosung[ch])  # 중성 없으면 초성 아님
+                    # 중성이 없으면 초성 실패 → 종성 처리
+                    if jamo_result:
+                        jamo_result[-1] = jamo_result[-1] + reverse_chosung[ch]
+                    else:
+                        jamo_result.append(reverse_chosung[ch])
                     i += 1
             else:
                 jamo_result.append(ch)
