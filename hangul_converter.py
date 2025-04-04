@@ -2,11 +2,10 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 한글 여부
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 기호 (룬 문자)
+# 초성 기호
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -14,7 +13,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (중복 없는 고대 문자)
+# 중성 기호 (중복 없음!)
 decompose_jungsung = {
     'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
     'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
@@ -22,7 +21,7 @@ decompose_jungsung = {
     'ㅙ': '𐔏', 'ㅚ': '𐔐', 'ㅝ': '𐔑', 'ㅞ': '𐔒', 'ㅟ': '𐔓', 'ㅢ': '𐔔'
 }
 
-# 종성 기호 (룬 확장)
+# 종성 기호
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -135,16 +134,7 @@ with tabs[1]:
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
         st.success(st.session_state.hangul_result)
-        st.code("자모 디버그: " + " ".join(jamo_result))
-        st.code("유니코드: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
-       
-        if st.session_state.hangul_result:
-    st.markdown("### 복원된 한글:")
-    st.success(st.session_state.hangul_result)
 
-    # 🔍 자모 분해 확인
-    st.code("자모 디버그: " + " ".join(j2hcj(h2j(st.session_state.hangul_result))))
-
-    # 🔍 유니코드 확인
-    st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
-
+        # 디버그 출력
+        st.code("자모 디버그: " + " ".join(j2hcj(h2j(st.session_state.hangul_result))))
+        st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
