@@ -5,7 +5,7 @@ import unicodedata
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ',
+CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ',' ' ,'ㅃ','ㅅ',
                 'ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 JUNGSUNG_LIST = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ',
                  'ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
@@ -15,7 +15,7 @@ JONGSUNG_LIST = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ',
 
 # 기호 매핑
 decompose_chosung = {c: sym for c, sym in zip(CHOSUNG_LIST,
-    ['ᚠ','ᚡ','ᚢ','ᚣ','ᚤ','ᚥ','ᚦ','ᚧ','ᚨ','ᚩ','ᚪ','ᚫ','ᚬ','ᚭ','ᚮ','ᚯ','ᚰ','ᚱ','ᚲ'])}
+    ['ᚠ','ᚡ','ᚢ','ᚣ','ᚤ','ᚥ','ᚦ','ᚧ',' ','ᚨ','ᚩ','ᚪ','ᚫ','ᚬ','ᚭ','ᚮ','ᚯ','ᚰ','ᚱ','ᚲ'])}
 decompose_jungsung = {j: sym for j, sym in zip(JUNGSUNG_LIST,
     ['𐔀','𐔁','𐔂','𐔃','𐔄','𐔅','𐔆','𐔇','𐔈','𐔉',
      '𐔊','𐔋','𐔌','𐔍','𐔎','𐔏','𐔐','𐔑','𐔒','𐔓','𐔔'])}
@@ -24,7 +24,7 @@ decompose_jongsung = {j: sym for j, sym in zip(JONGSUNG_LIST,
      'ᚼ','ᚽ','ᚾ','ᚿ','ᛀ','ᛁ','ᛂ','ᛃ','ᛄ','ᛅ',
      'ᛆ','ᛇ','ᛈ','ᛉ','ᛊ','ᛋ','ᛌ','ᛍ'])}
 
-# 특수 기호 대체
+# 특수기호 대체 문자
 special_symbols = {
     '?': 'ꡞ', '!': '႟', '.': '꘏', ',': '᛬',
     ':': '჻', ';': '꛲', '"': '᳓', "'": 'ᛥ'
@@ -47,8 +47,8 @@ def join_jamos_manual(jamos):
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
                 jong = 0
                 if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    after_jong = jamos[i+3] if i+3 < len(jamos) else None
-                    if after_jong in CHOSUNG_LIST or after_jong == ' ' or after_jong is None:
+                    next_j = jamos[i+3] if i+3 < len(jamos) else ''
+                    if next_j in CHOSUNG_LIST or next_j == ' ' or next_j in special_symbols or next_j == '':
                         jong = JONGSUNG_LIST.index(jamos[i+2])
                         i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
@@ -104,6 +104,7 @@ with tabs[1]:
         i = 0
         while i < len(symbol_input):
             ch = symbol_input[i]
+
             if ch == SPACE_SYMBOL:
                 jamo_result.append(' ')
                 i += 1
@@ -115,15 +116,19 @@ with tabs[1]:
                 i += 1
 
                 jung = ''
-                jong = ''
-
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
 
+                jong = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                    # 종성 다음 기호가 초성이 아니라면 종성으로 인정
-                    if i+1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung or symbol_input[i+1] == SPACE_SYMBOL:
+                    next_char = symbol_input[i+1] if i+1 < len(symbol_input) else ''
+                    if (
+                        next_char in reverse_chosung or
+                        next_char == SPACE_SYMBOL or
+                        next_char in reverse_special or
+                        next_char == ''
+                    ):
                         jong = reverse_jongsung[symbol_input[i]]
                         i += 1
 
