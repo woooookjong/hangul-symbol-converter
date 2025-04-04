@@ -5,42 +5,32 @@ import unicodedata
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 기호 (표준 순서)
+# 표준 순서 자모 리스트
 CHOSUNG_LIST = [
     'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
     'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
 ]
-
-# 중성 기호 (표준 순서)
 JUNGSUNG_LIST = [
     'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ',
     'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'
 ]
-
-# 종성 기호 (표준 순서)
 JONGSUNG_LIST = [
     '', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ',
     'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ',
     'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
 ]
 
-# 고대 기호 매핑
-decompose_chosung = {
-    c: sym for c, sym in zip(CHOSUNG_LIST, 
-        ['ᚠ', 'ᚡ', 'ᚢ', 'ᚣ', 'ᚤ', 'ᚥ', 'ᚦ', 'ᚧ', 'ᚨ', 'ᚩ',
-         'ᚪ', 'ᚫ', 'ᚬ', 'ᚭ', 'ᚮ', 'ᚯ', 'ᚰ', 'ᚱ', 'ᚲ'])
-}
-decompose_jungsung = {
-    j: sym for j, sym in zip(JUNGSUNG_LIST, 
-        ['𐔀', '𐔁', '𐔂', '𐔃', '𐔄', '𐔅', '𐔆', '𐔇', '𐔈', '𐔉',
-         '𐔊', '𐔋', '𐔌', '𐔍', '𐔎', '𐔏', '𐔐', '𐔑', '𐔒', '𐔓', '𐔔'])
-}
-decompose_jongsung = {
-    j: sym for j, sym in zip(JONGSUNG_LIST,
-        ['', 'ᚳ', 'ᚴ', 'ᚵ', 'ᚶ', 'ᚷ', 'ᚸ', 'ᚹ', 'ᚺ', 'ᚻ',
-         'ᚼ', 'ᚽ', 'ᚾ', 'ᚿ', 'ᛀ', 'ᛁ', 'ᛂ', 'ᛃ', 'ᛄ', 'ᛅ',
-         'ᛆ', 'ᛇ', 'ᛈ', 'ᛉ', 'ᛊ', 'ᛋ', 'ᛌ', 'ᛍ'])
-}
+# 고대 문자 매핑
+decompose_chosung = {c: sym for c, sym in zip(CHOSUNG_LIST, 
+    ['ᚠ','ᚡ','ᚢ','ᚣ','ᚤ','ᚥ','ᚦ','ᚧ','ᚨ','ᚩ',
+     'ᚪ','ᚫ','ᚬ','ᚭ','ᚮ','ᚯ','ᚰ','ᚱ','ᚲ'])}
+decompose_jungsung = {j: sym for j, sym in zip(JUNGSUNG_LIST, 
+    ['𐔀','𐔁','𐔂','𐔃','𐔄','𐔅','𐔆','𐔇','𐔈','𐔉',
+     '𐔊','𐔋','𐔌','𐔍','𐔎','𐔏','𐔐','𐔑','𐔒','𐔓','𐔔'])}
+decompose_jongsung = {j: sym for j, sym in zip(JONGSUNG_LIST, 
+    ['', 'ᚳ','ᚴ','ᚵ','ᚶ','ᚷ','ᚸ','ᚹ','ᚺ','ᚻ',
+     'ᚼ','ᚽ','ᚾ','ᚿ','ᛀ','ᛁ','ᛂ','ᛃ','ᛄ','ᛅ',
+     'ᛆ','ᛇ','ᛈ','ᛉ','ᛊ','ᛋ','ᛌ','ᛍ'])}
 
 # 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
@@ -58,7 +48,9 @@ def join_jamos_manual(jamos):
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
                 jong = 0
                 if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    if i+3 == len(jamos) or jamos[i+3] in CHOSUNG_LIST:
+                    next_is_cho = (i+3 < len(jamos)) and (jamos[i+3] in CHOSUNG_LIST)
+                    end_of_input = (i+3 == len(jamos))
+                    if next_is_cho or end_of_input:
                         jong = JONGSUNG_LIST.index(jamos[i+2])
                         i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
@@ -71,6 +63,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
+# UI 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -119,7 +112,8 @@ with tabs[1]:
                     i += 1
                 jong = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                    if i + 1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
+                    # 종성인지, 다음 글자의 초성인지 구분
+                    if (i+1 == len(symbol_input)) or (symbol_input[i+1] in reverse_chosung):
                         jong = reverse_jongsung[symbol_input[i]]
                         i += 1
                 jamo_result.extend([cho, jung])
