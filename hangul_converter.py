@@ -5,57 +5,60 @@ import unicodedata
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 기호
+# 초성 기호 (표준 순서)
+CHOSUNG_LIST = [
+    'ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ',
+    'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+]
+
+# 중성 기호 (표준 순서)
+JUNGSUNG_LIST = [
+    'ㅏ', 'ㅐ', 'ㅑ', 'ㅒ', 'ㅓ', 'ㅔ', 'ㅕ', 'ㅖ', 'ㅗ', 'ㅘ',
+    'ㅙ', 'ㅚ', 'ㅛ', 'ㅜ', 'ㅝ', 'ㅞ', 'ㅟ', 'ㅠ', 'ㅡ', 'ㅢ', 'ㅣ'
+]
+
+# 종성 기호 (표준 순서)
+JONGSUNG_LIST = [
+    '', 'ㄱ', 'ㄲ', 'ㄳ', 'ㄴ', 'ㄵ', 'ㄶ', 'ㄷ', 'ㄹ', 'ㄺ',
+    'ㄻ', 'ㄼ', 'ㄽ', 'ㄾ', 'ㄿ', 'ㅀ', 'ㅁ', 'ㅂ', 'ㅄ', 'ㅅ',
+    'ㅆ', 'ㅇ', 'ㅈ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'
+]
+
+# 고대 기호 매핑
 decompose_chosung = {
-    'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
-    'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
-    'ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ',
-    'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
+    c: sym for c, sym in zip(CHOSUNG_LIST, 
+        ['ᚠ', 'ᚡ', 'ᚢ', 'ᚣ', 'ᚤ', 'ᚥ', 'ᚦ', 'ᚧ', 'ᚨ', 'ᚩ',
+         'ᚪ', 'ᚫ', 'ᚬ', 'ᚭ', 'ᚮ', 'ᚯ', 'ᚰ', 'ᚱ', 'ᚲ'])
 }
-
-# 중성 기호
 decompose_jungsung = {
-    'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
-    'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
-    'ㅜ': '𐔊', 'ㅠ': '𐔋', 'ㅡ': '𐔌', 'ㅣ': '𐔍', 'ㅘ': '𐔎',
-    'ㅙ': '𐔏', 'ㅚ': '𐔐', 'ㅝ': '𐔑', 'ㅞ': '𐔒', 'ㅟ': '𐔓', 'ㅢ': '𐔔'
+    j: sym for j, sym in zip(JUNGSUNG_LIST, 
+        ['𐔀', '𐔁', '𐔂', '𐔃', '𐔄', '𐔅', '𐔆', '𐔇', '𐔈', '𐔉',
+         '𐔊', '𐔋', '𐔌', '𐔍', '𐔎', '𐔏', '𐔐', '𐔑', '𐔒', '𐔓', '𐔔'])
 }
-
-# 종성 기호
 decompose_jongsung = {
-    '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
-    'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
-    'ㄻ': 'ᚼ', 'ㄼ': 'ᚽ', 'ㄽ': 'ᚾ', 'ㄾ': 'ᚿ', 'ㄿ': 'ᛀ',
-    'ㅀ': 'ᛁ', 'ㅁ': 'ᛂ', 'ㅂ': 'ᛃ', 'ㅄ': 'ᛄ', 'ㅅ': 'ᛅ',
-    'ㅆ': 'ᛆ', 'ㅇ': 'ᛇ', 'ㅈ': 'ᛈ', 'ㅊ': 'ᛉ', 'ㅋ': 'ᛊ',
-    'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
+    j: sym for j, sym in zip(JONGSUNG_LIST,
+        ['', 'ᚳ', 'ᚴ', 'ᚵ', 'ᚶ', 'ᚷ', 'ᚸ', 'ᚹ', 'ᚺ', 'ᚻ',
+         'ᚼ', 'ᚽ', 'ᚾ', 'ᚿ', 'ᛀ', 'ᛁ', 'ᛂ', 'ᛃ', 'ᛄ', 'ᛅ',
+         'ᛆ', 'ᛇ', 'ᛈ', 'ᛉ', 'ᛊ', 'ᛋ', 'ᛌ', 'ᛍ'])
 }
 
 # 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
+reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
-reverse_jungsung = {
-    '𐔀': 'ㅏ', '𐔁': 'ㅐ', '𐔂': 'ㅑ', '𐔃': 'ㅒ', '𐔄': 'ㅓ',
-    '𐔅': 'ㅔ', '𐔆': 'ㅕ', '𐔇': 'ㅖ', '𐔈': 'ㅗ', '𐔉': 'ㅛ',
-    '𐔊': 'ㅜ', '𐔋': 'ㅠ', '𐔌': 'ㅡ', '𐔍': 'ㅣ', '𐔎': 'ㅘ',
-    '𐔏': 'ㅙ', '𐔐': 'ㅚ', '𐔑': 'ㅝ', '𐔒': 'ㅞ', '𐔓': 'ㅟ', '𐔔': 'ㅢ'
-}
 
-CHOSUNG_LIST = list(decompose_chosung.keys())
-JUNGSUNG_LIST = list(decompose_jungsung.keys())
-JONGSUNG_LIST = list(decompose_jongsung.keys())
-
+# 한글 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
         if jamos[i] in CHOSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
-            if i + 1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
+            if i+1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
                 jong = 0
-                if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    if i + 3 == len(jamos) or jamos[i+3] in CHOSUNG_LIST:
+                if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                    if i+3 == len(jamos) or jamos[i+3] in CHOSUNG_LIST:
                         jong = JONGSUNG_LIST.index(jamos[i+2])
                         i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
@@ -103,8 +106,6 @@ with tabs[0]:
 # 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
-    st.markdown("👉 기호를 붙여넣어 주세요!")
-
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
         i = 0
@@ -131,13 +132,13 @@ with tabs[1]:
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
-        # ✅ 디버그 출력
+        # 디버그 출력
         st.code("symbol_input 리스트: " + str(list(symbol_input)))
         st.code("jamo_result 리스트: " + str(jamo_result))
-        st.code("자모 디버그: " + " ".join(j2hcj(h2j(result))))
-        st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in result))
+        st.code("자모 유니코드:")
         for ch in jamo_result:
-            st.code(f"자모 '{ch}' → 유니코드: {hex(ord(ch))}")
+            st.code(f"{ch} → {hex(ord(ch))}")
+        st.code("최종 복원 결과 유니코드: " + ", ".join(hex(ord(c)) for c in result))
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
