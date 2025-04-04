@@ -2,11 +2,9 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 한글 여부 판단
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 자모 리스트
 CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ',
                 'ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 JUNGSUNG_LIST = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ',
@@ -15,7 +13,7 @@ JONGSUNG_LIST = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ',
                  'ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ',
                  'ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 
-# 고대 문자 기호 매핑
+# 기호 매핑
 decompose_chosung = {c: sym for c, sym in zip(CHOSUNG_LIST,
     ['ᚠ','ᚡ','ᚢ','ᚣ','ᚤ','ᚥ','ᚦ','ᚧ','ᚨ','ᚩ','ᚪ','ᚫ','ᚬ','ᚭ','ᚮ','ᚯ','ᚰ','ᚱ','ᚲ'])}
 decompose_jungsung = {j: sym for j, sym in zip(JUNGSUNG_LIST,
@@ -26,22 +24,19 @@ decompose_jongsung = {j: sym for j, sym in zip(JONGSUNG_LIST,
      'ᚼ','ᚽ','ᚾ','ᚿ','ᛀ','ᛁ','ᛂ','ᛃ','ᛄ','ᛅ',
      'ᛆ','ᛇ','ᛈ','ᛉ','ᛊ','ᛋ','ᛌ','ᛍ'])}
 
-# 특수기호 대체 문자 (기호 느낌 없는 문자들)
+# 특수 기호 대체
 special_symbols = {
     '?': 'ꡞ', '!': '႟', '.': '꘏', ',': '᛬',
     ':': '჻', ';': '꛲', '"': '᳓', "'": 'ᛥ'
 }
 reverse_special = {v: k for k, v in special_symbols.items()}
 
-# 역변환 맵
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
 
-# 띄어쓰기
 SPACE_SYMBOL = '𐤟'
 
-# 자모 결합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -66,7 +61,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -119,16 +113,23 @@ with tabs[1]:
             elif ch in reverse_chosung:
                 cho = reverse_chosung[ch]
                 i += 1
+
                 jung = ''
+                jong = ''
+
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
-                jong = ''
+
                 if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
+                    # 종성 다음 기호가 초성이 아니라면 종성으로 인정
                     if i+1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung or symbol_input[i+1] == SPACE_SYMBOL:
                         jong = reverse_jongsung[symbol_input[i]]
                         i += 1
-                jamo_result.extend([cho, jung])
+
+                jamo_result.append(cho)
+                if jung:
+                    jamo_result.append(jung)
                 if jong:
                     jamo_result.append(jong)
             else:
