@@ -2,7 +2,6 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 유틸
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
@@ -38,21 +37,18 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 특수기호 대체 문자
 special_symbols = {
     '?': 'ꡞ', '!': '႟', '.': '꘏', ',': '᛬', ':': '჻', ';': '꛲',
     '"': '᳓', "'": 'ᛥ'
 }
 reverse_special = {v: k for k, v in special_symbols.items()}
 
-# 역매핑
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
 
-SPACE_SYMBOL = '𐤟'  # 띄어쓰기 기호
+SPACE_SYMBOL = '𐤟'
 
-# 한글 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -64,7 +60,7 @@ def join_jamos_manual(jamos):
                 jong = 0
                 if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     next_j = jamos[i+3] if i+3 < len(jamos) else ''
-                    if next_j in CHOSUNG_LIST or next_j in special_symbols or next_j == SPACE_SYMBOL or next_j == '':
+                    if next_j in CHOSUNG_LIST or next_j == SPACE_SYMBOL or next_j in special_symbols or next_j == '':
                         jong = JONGSUNG_LIST.index(jamos[i+2])
                         i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
@@ -77,7 +73,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -88,7 +83,6 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -113,7 +107,6 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
@@ -148,7 +141,6 @@ with tabs[1]:
             else:
                 jamo_result.append(ch)
                 i += 1
-
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
