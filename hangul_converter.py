@@ -31,7 +31,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환 (중성은 수동으로 정확히 매핑)
+# 역변환 (중성 수동 매핑)
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
 reverse_jungsung = {
@@ -96,9 +96,8 @@ with tabs[0]:
                 result += decompose_chosung.get(cho, cho)
                 result += decompose_jungsung.get(jung, jung)
                 result += decompose_jongsung.get(jong, jong)
-            else:
-                result += char
         st.session_state.symbol_result = result
+        st.code("기호 출력 리스트: " + str(list(result)))
 
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
@@ -134,10 +133,12 @@ with tabs[1]:
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
+        # 디버그 출력
+        st.code("symbol_input 리스트: " + str(list(symbol_input)))
+        st.code("jamo_result 리스트: " + str(jamo_result))
+        st.code("자모 디버그: " + " ".join(j2hcj(h2j(result))))
+        st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in result))
+
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
         st.success(st.session_state.hangul_result)
-
-        # 디버그
-        st.code("자모 디버그: " + " ".join(j2hcj(h2j(st.session_state.hangul_result))))
-        st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
