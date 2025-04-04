@@ -116,9 +116,9 @@ with tabs[1]:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    # 중성이 없고 다음이 띄어쓰기 기호이면 종성 처리
-                    if i+1 < len(symbol_input) and symbol_input[i+1] == SPACE_SYMBOL:
-                        jamo_result.append(reverse_chosung[ch])  # 종성처럼 붙일 예정
+                    # ✅ 중성이 없고 다음이 띄어쓰기 기호이면 종성 처리
+                    if next_ch == SPACE_SYMBOL or next_ch in reverse_chosung or next_ch in reverse_special or next_ch == '':
+                        jamo_result.append(reverse_chosung[ch])
                         i += 1
                     else:
                         jamo_result.append(reverse_chosung[ch])
