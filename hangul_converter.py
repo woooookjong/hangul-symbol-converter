@@ -2,11 +2,11 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-# 문자 판별
+# 한글 여부
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
-# 초성 기호
+# 초성 기호 (룬 문자)
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -14,15 +14,15 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (확실히 구별되도록 지정)
+# 중성 기호 (중복 없는 고대 문자)
 decompose_jungsung = {
-    'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
-    'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
-    'ㅜ': 'ⴺ', 'ㅠ': 'ⴻ', 'ㅡ': 'ⴼ', 'ㅣ': 'ⴽ', 'ㅘ': 'ⴾ',
-    'ㅙ': 'ⴿ', 'ㅚ': 'ⵀ', 'ㅝ': 'ⵁ', 'ㅞ': 'ⵂ', 'ㅟ': 'ⵃ', 'ㅢ': 'ⵄ'
+    'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
+    'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
+    'ㅜ': '𐔊', 'ㅠ': '𐔋', 'ㅡ': '𐔌', 'ㅣ': '𐔍', 'ㅘ': '𐔎',
+    'ㅙ': '𐔏', 'ㅚ': '𐔐', 'ㅝ': '𐔑', 'ㅞ': '𐔒', 'ㅟ': '𐔓', 'ㅢ': '𐔔'
 }
 
-# 종성 기호
+# 종성 기호 (룬 확장)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ',
     'ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ',
@@ -32,7 +32,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환 사전
+# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -41,7 +41,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합 함수
+# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -69,9 +69,9 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit UI
+# UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠⴰ 고대 문자 한글 변환기")
+st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -80,7 +80,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# ▶ 한글 → 기호
+# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -101,7 +101,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# ▶ 기호 → 한글
+# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("👉 기호를 붙여넣어 주세요!")
@@ -137,24 +137,3 @@ with tabs[1]:
         st.success(st.session_state.hangul_result)
         st.code("자모 디버그: " + " ".join(jamo_result))
         st.code("유니코드: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
-
-# ====================== 🔍 디버깅 도구 ======================
-
-st.markdown("## 🧪 디버깅 도구")
-
-# 1. 중복된 중성 기호 확인
-used_symbols = list(decompose_jungsung.values())
-duplicates = [s for s in used_symbols if used_symbols.count(s) > 1]
-if duplicates:
-    st.error("❗ 중복된 중성 기호 발견: " + ", ".join(set(duplicates)))
-else:
-    st.success("✅ 중복된 중성 기호 없음")
-
-# 2. 특정 기호가 어떤 자모에 쓰였는지 확인
-target_symbol = 'ⴽ'  # ← 여기 원하는 기호 바꿔도 됨!
-used_in = [k for k, v in decompose_jungsung.items() if v == target_symbol]
-st.info(f"🔍 기호 '{target_symbol}'이 사용된 자모: {used_in if used_in else '❌ 없음'}")
-
-# 3. 역변환 사전에서 어떤 자모로 인식되는지
-rev_value = reverse_jungsung.get(target_symbol, '❌ 없음')
-st.code(f"reverse_jungsung['{target_symbol}'] = {rev_value}")
