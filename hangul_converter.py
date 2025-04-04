@@ -13,7 +13,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (확실히 구별되는 문자셋)
+# 중성 기호
 decompose_jungsung = {
     'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
     'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
@@ -31,7 +31,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환 사전
+# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -40,7 +40,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합 함수
+# 자모 결합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -68,7 +68,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit UI
+# UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠⴰ 고대 문자 한글 변환기")
 
@@ -79,7 +79,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 🔤 한글 → 기호
+# ▶ 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -100,7 +100,7 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 🔁 기호 → 한글
+# ▶ 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     st.markdown("👉 기호를 붙여넣어 주세요!")
@@ -112,18 +112,15 @@ with tabs[1]:
             if symbol_input[i] in reverse_chosung:
                 cho = reverse_chosung[symbol_input[i]]
                 i += 1
-
                 jung = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
                     jung = reverse_jungsung[symbol_input[i]]
                     i += 1
-
                 jong = ''
                 if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
                     if i + 1 == len(symbol_input) or symbol_input[i+1] in reverse_chosung:
                         jong = reverse_jongsung[symbol_input[i]]
                         i += 1
-
                 jamo_result.extend([cho, jung])
                 if jong:
                     jamo_result.append(jong)
@@ -136,6 +133,20 @@ with tabs[1]:
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
-        st.success(st.session_state.hangul_result)
+        
+        # ✅ 한글 폰트 명시 출력 (렌더링 오류 방지용)
+        st.markdown(
+            f"""
+            <div style='
+                font-size: 24px;
+                font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+                line-height: 1.6;
+            '>
+            {st.session_state.hangul_result}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         st.code("자모 디버그: " + " ".join(jamo_result))
         st.code("유니코드: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
