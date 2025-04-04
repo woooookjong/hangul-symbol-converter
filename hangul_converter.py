@@ -13,7 +13,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (중복 없음!)
+# 중성 기호 (중복 없음)
 decompose_jungsung = {
     'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
     'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
@@ -31,16 +31,20 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환
+# 역변환 (중성은 수동으로 정확히 매핑)
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
-reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
+reverse_jungsung = {
+    '𐔀': 'ㅏ', '𐔁': 'ㅐ', '𐔂': 'ㅑ', '𐔃': 'ㅒ', '𐔄': 'ㅓ',
+    '𐔅': 'ㅔ', '𐔆': 'ㅕ', '𐔇': 'ㅖ', '𐔈': 'ㅗ', '𐔉': 'ㅛ',
+    '𐔊': 'ㅜ', '𐔋': 'ㅠ', '𐔌': 'ㅡ', '𐔍': 'ㅣ', '𐔎': 'ㅘ',
+    '𐔏': 'ㅙ', '𐔐': 'ㅚ', '𐔑': 'ㅝ', '𐔒': 'ㅞ', '𐔓': 'ㅟ', '𐔔': 'ㅢ'
+}
 
 CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 조합
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -68,7 +72,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -135,6 +138,6 @@ with tabs[1]:
         st.markdown("### 복원된 한글:")
         st.success(st.session_state.hangul_result)
 
-        # 디버그 출력
+        # 디버그
         st.code("자모 디버그: " + " ".join(j2hcj(h2j(st.session_state.hangul_result))))
         st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
