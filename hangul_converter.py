@@ -137,3 +137,14 @@ with tabs[1]:
         st.success(st.session_state.hangul_result)
         st.code("자모 디버그: " + " ".join(jamo_result))
         st.code("유니코드: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
+       
+        if st.session_state.hangul_result:
+    st.markdown("### 복원된 한글:")
+    st.success(st.session_state.hangul_result)
+
+    # 🔍 자모 분해 확인
+    st.code("자모 디버그: " + " ".join(j2hcj(h2j(st.session_state.hangul_result))))
+
+    # 🔍 유니코드 확인
+    st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
+
