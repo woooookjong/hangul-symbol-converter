@@ -45,7 +45,6 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# ✅ 정확한 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -69,7 +68,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# ✅ Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -133,11 +131,13 @@ with tabs[1]:
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
-        # 디버깅 출력
+        # ✅ 디버그 출력
         st.code("symbol_input 리스트: " + str(list(symbol_input)))
         st.code("jamo_result 리스트: " + str(jamo_result))
         st.code("자모 디버그: " + " ".join(j2hcj(h2j(result))))
         st.code("유니코드 값: " + ", ".join(hex(ord(ch)) for ch in result))
+        for ch in jamo_result:
+            st.code(f"자모 '{ch}' → 유니코드: {hex(ord(ch))}")
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
