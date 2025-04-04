@@ -13,7 +13,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호 (중복 없음)
+# 중성 기호
 decompose_jungsung = {
     'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
     'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
@@ -31,7 +31,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환 (중성 수동 매핑)
+# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
 reverse_jungsung = {
@@ -45,25 +45,22 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
+# ✅ 정확한 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
         if jamos[i] in CHOSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
-            jung = 0
-            jong = 0
             if i + 1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
+                jong = 0
                 if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     if i + 3 == len(jamos) or jamos[i+3] in CHOSUNG_LIST:
                         jong = JONGSUNG_LIST.index(jamos[i+2])
-                        result += chr(0xAC00 + (cho * 21 * 28) + (jung * 28) + jong)
-                        i += 3
-                        continue
-                result += chr(0xAC00 + (cho * 21 * 28) + (jung * 28))
+                        i += 1
+                result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
                 i += 2
-                continue
             else:
                 result += jamos[i]
                 i += 1
@@ -72,6 +69,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
+# ✅ Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -96,6 +94,8 @@ with tabs[0]:
                 result += decompose_chosung.get(cho, cho)
                 result += decompose_jungsung.get(jung, jung)
                 result += decompose_jongsung.get(jong, jong)
+            else:
+                result += char
         st.session_state.symbol_result = result
         st.code("기호 출력 리스트: " + str(list(result)))
 
@@ -133,7 +133,7 @@ with tabs[1]:
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
-        # 디버그 출력
+        # 디버깅 출력
         st.code("symbol_input 리스트: " + str(list(symbol_input)))
         st.code("jamo_result 리스트: " + str(jamo_result))
         st.code("자모 디버그: " + " ".join(j2hcj(h2j(result))))
