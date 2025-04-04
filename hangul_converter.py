@@ -13,7 +13,6 @@ JONGSUNG_LIST = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ',
                  'ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ',
                  'ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 
-# 고유 기호 매핑
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -111,36 +110,62 @@ with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
+        current_cho = ''
+        current_jung = ''
+        current_jong = ''
         i = 0
         while i < len(symbol_input):
             ch = symbol_input[i]
+            next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
+
             if ch == SPACE_SYMBOL:
+                if current_cho and current_jung:
+                    jamo_result.extend([current_cho, current_jung])
+                    if current_jong:
+                        jamo_result.append(current_jong)
+                    current_cho = current_jung = current_jong = ''
                 jamo_result.append(' ')
                 i += 1
             elif ch in reverse_special:
+                if current_cho and current_jung:
+                    jamo_result.extend([current_cho, current_jung])
+                    if current_jong:
+                        jamo_result.append(current_jong)
+                    current_cho = current_jung = current_jong = ''
                 jamo_result.append(reverse_special[ch])
                 i += 1
             elif ch in reverse_chosung:
-                cho = reverse_chosung[ch]
+                if current_cho and current_jung:
+                    jamo_result.extend([current_cho, current_jung])
+                    if current_jong:
+                        jamo_result.append(current_jong)
+                current_cho = reverse_chosung[ch]
+                current_jung = ''
+                current_jong = ''
                 i += 1
-                jung = ''
-                jong = ''
-                if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
-                    jung = reverse_jungsung[symbol_input[i]]
+            elif ch in reverse_jungsung:
+                current_jung = reverse_jungsung[ch]
+                i += 1
+            elif ch in reverse_jongsung:
+                if next_ch in reverse_chosung or next_ch == SPACE_SYMBOL or next_ch in reverse_special or next_ch == '':
+                    current_jong = reverse_jongsung[ch]
                     i += 1
-                if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                    next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
-                    if next_ch in reverse_chosung or next_ch == SPACE_SYMBOL or next_ch in reverse_special or next_ch == '':
-                        jong = reverse_jongsung[symbol_input[i]]
-                        i += 1
-                jamo_result.append(cho)
-                if jung:
-                    jamo_result.append(jung)
-                if jong:
-                    jamo_result.append(jong)
+                else:
+                    i += 1
             else:
+                if current_cho and current_jung:
+                    jamo_result.extend([current_cho, current_jung])
+                    if current_jong:
+                        jamo_result.append(current_jong)
+                    current_cho = current_jung = current_jong = ''
                 jamo_result.append(ch)
                 i += 1
+
+        if current_cho and current_jung:
+            jamo_result.extend([current_cho, current_jung])
+            if current_jong:
+                jamo_result.append(current_jong)
+
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
 
