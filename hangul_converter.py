@@ -2,6 +2,7 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
+# 문자 판별
 def is_hangul_char(char):
     return 'HANGUL' in unicodedata.name(char, '')
 
@@ -13,7 +14,7 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 기호
+# 중성 기호 (확실히 구별되도록 지정)
 decompose_jungsung = {
     'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
     'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
@@ -31,7 +32,7 @@ decompose_jongsung = {
     'ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'
 }
 
-# 역변환
+# 역변환 사전
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -40,7 +41,7 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 결합 함수
+# 자모 조합 함수
 def join_jamos_manual(jamos):
     result = ""
     i = 0
@@ -68,7 +69,7 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# UI
+# Streamlit UI
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠⴰ 고대 문자 한글 변환기")
 
@@ -133,20 +134,27 @@ with tabs[1]:
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
-        
-        # ✅ 한글 폰트 명시 출력 (렌더링 오류 방지용)
-        st.markdown(
-            f"""
-            <div style='
-                font-size: 24px;
-                font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-                line-height: 1.6;
-            '>
-            {st.session_state.hangul_result}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+        st.success(st.session_state.hangul_result)
         st.code("자모 디버그: " + " ".join(jamo_result))
         st.code("유니코드: " + ", ".join(hex(ord(ch)) for ch in st.session_state.hangul_result))
+
+# ====================== 🔍 디버깅 도구 ======================
+
+st.markdown("## 🧪 디버깅 도구")
+
+# 1. 중복된 중성 기호 확인
+used_symbols = list(decompose_jungsung.values())
+duplicates = [s for s in used_symbols if used_symbols.count(s) > 1]
+if duplicates:
+    st.error("❗ 중복된 중성 기호 발견: " + ", ".join(set(duplicates)))
+else:
+    st.success("✅ 중복된 중성 기호 없음")
+
+# 2. 특정 기호가 어떤 자모에 쓰였는지 확인
+target_symbol = 'ⴽ'  # ← 여기 원하는 기호 바꿔도 됨!
+used_in = [k for k, v in decompose_jungsung.items() if v == target_symbol]
+st.info(f"🔍 기호 '{target_symbol}'이 사용된 자모: {used_in if used_in else '❌ 없음'}")
+
+# 3. 역변환 사전에서 어떤 자모로 인식되는지
+rev_value = reverse_jungsung.get(target_symbol, '❌ 없음')
+st.code(f"reverse_jungsung['{target_symbol}'] = {rev_value}")
