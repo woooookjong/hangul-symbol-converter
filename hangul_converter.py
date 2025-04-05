@@ -86,6 +86,7 @@ with tabs[1]:
             ch = symbol_input[i]
             next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
+            lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
 
             debug_lines.append(f"[{i}] ▶ '{ch}'")
 
@@ -104,19 +105,14 @@ with tabs[1]:
                     jung = reverse_jungsung[next_ch]
                     debug_lines.append(f"⮕ 초성 인식: {cho} (U+{ord(cho):04X})")
                     debug_lines.append(f"⮕ 중성 인식: {jung} (U+{ord(jung):04X})")
-                    if next_next_ch in reverse_jongsung:
-                        lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
-                        if lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == '':
-                            jong = reverse_jongsung[next_next_ch]
-                            if jong:
-                                debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
-                            else:
-                                debug_lines.append("⮕ 종성 없음")
-                            jamo_result.extend([cho, jung, jong])
-                            i += 3
-                        else:
-                            jamo_result.extend([cho, jung])
-                            i += 2
+
+                    if next_next_ch in reverse_jongsung and (
+                        lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == ''
+                    ):
+                        jong = reverse_jongsung[next_next_ch]
+                        debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                        jamo_result.extend([cho, jung, jong])
+                        i += 3
                     else:
                         jamo_result.extend([cho, jung])
                         i += 2
