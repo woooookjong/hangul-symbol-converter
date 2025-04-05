@@ -92,12 +92,23 @@ with tabs[1]:
             next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
 
+            # ✅ 띄어쓰기
             if ch == SPACE_SYMBOL:
                 jamo_result.append(' ')
                 i += 1
+            # ✅ 특수기호
             elif ch in reverse_special:
                 jamo_result.append(reverse_special[ch])
                 i += 1
+            # ✅ 종성 기호 처리 먼저!
+            elif ch in reverse_jongsung:
+                if next_ch == SPACE_SYMBOL or next_ch in reverse_chosung or next_ch in reverse_special or next_ch == '':
+                    jamo_result.append(reverse_jongsung[ch])
+                    i += 1
+                else:
+                    jamo_result.append(reverse_jongsung[ch])
+                    i += 1
+            # ✅ 초성 + 중성 (+종성) 처리
             elif ch in reverse_chosung:
                 if next_ch in reverse_jungsung:
                     cho = reverse_chosung[ch]
@@ -116,13 +127,8 @@ with tabs[1]:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    # ✅ 중성이 없고 다음이 띄어쓰기 기호이면 종성 처리
-                    if next_ch == SPACE_SYMBOL or next_ch in reverse_chosung or next_ch in reverse_special or next_ch == '':
-                        jamo_result.append(reverse_chosung[ch])
-                        i += 1
-                    else:
-                        jamo_result.append(reverse_chosung[ch])
-                        i += 1
+                    jamo_result.append(reverse_chosung[ch])
+                    i += 1
             else:
                 jamo_result.append(ch)
                 i += 1
