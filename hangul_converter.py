@@ -4,54 +4,46 @@ import unicodedata
 
 SPACE_SYMBOL = '𐤟'
 
-decompose_chosung = {
-    'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
-    'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
-    'ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ',
-    'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
-}
+CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
+JUNGSUNG_LIST = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
+JONGSUNG_LIST = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 
-decompose_jungsung = {
-    'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
-    'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
-    'ㅜ': '𐔊', 'ㅠ': '𐔋', 'ㅡ': '𐔌', 'ㅣ': '𐔍',
-    'ㅘ': '𐔎', 'ㅙ': '𐔏', 'ㅚ': '𐔐', 'ㅝ': '𐔑',
-    'ㅞ': '𐔒', 'ㅟ': '𐔓', 'ㅢ': '𐔔'
-}
-
-decompose_jongsung = {
-    '': '', 'ㄱ': 'ᛅ', 'ㄲ': 'ᛆ', 'ㄳ': 'ᛇ', 'ㄴ': 'ᛈ',
-    'ㄵ': 'ᛉ', 'ㄶ': 'ᛊ', 'ㄷ': 'ᛋ', 'ㄹ': 'ᛌ', 'ㄺ': 'ᛍ',
-    'ㄻ': 'ᛎ', 'ㄼ': 'ᛏ', 'ㄽ': 'ᛐ', 'ㄾ': 'ᛑ', 'ㄿ': 'ᛒ',
-    'ㅀ': 'ᛓ', 'ㅁ': 'ᛔ', 'ㅂ': 'ᛕ', 'ㅄ': 'ᛖ', 'ㅅ': 'ᛗ',
-    'ㅆ': 'ᛘ', 'ㅇ': 'ᛙ', 'ㅈ': 'ᛚ', 'ㅊ': 'ᛛ', 'ㅋ': 'ᛜ',
-    'ㅌ': 'ᛝ', 'ㅍ': 'ᛞ', 'ㅎ': 'ᛟ'
-}
+decompose_chosung = {'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ','ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ','ㅆ': 'ᚪ', 'ㅇ': 'ᚫ', 'ㅈ': 'ᚬ', 'ㅉ': 'ᚭ', 'ㅊ': 'ᚮ','ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'}
+decompose_jungsung = {'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄','ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅘ': '𐔉','ㅙ': '𐔊', 'ㅚ': '𐔋', 'ㅛ': '𐔌', 'ㅜ': '𐔍', 'ㅝ': '𐔎','ㅞ': '𐔏', 'ㅟ': '𐔐', 'ㅠ': '𐔑', 'ㅡ': '𐔒', 'ㅢ': '𐔓', 'ㅣ': '𐔔'}
+decompose_jongsung = {'': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ','ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ','ㄻ': 'ᚼ', 'ㄼ': 'ᚽ', 'ㄽ': 'ᚾ', 'ㄾ': 'ᚿ', 'ㄿ': 'ᛀ','ㅀ': 'ᛁ', 'ㅁ': 'ᛂ', 'ㅂ': 'ᛃ', 'ㅄ': 'ᛄ', 'ㅅ': 'ᛅ','ㅆ': 'ᛆ', 'ㅇ': 'ᛇ', 'ㅈ': 'ᛈ', 'ㅊ': 'ᛉ', 'ㅋ': 'ᛊ','ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'}
 
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
 
-CHOSUNG_LIST = list(decompose_chosung.keys())
-JUNGSUNG_LIST = list(decompose_jungsung.keys())
-JONGSUNG_LIST = list(decompose_jongsung.keys())
+def is_hangul_char(char):
+    return 'HANGUL' in unicodedata.name(char, '')
 
-def join_jamos_manual_groups(jamo_groups):
+def join_jamos_manual(jamos):
     result = ""
-    for group in jamo_groups:
-        if group == [" "]:
-            result += " "
-            continue
-        cho, jung = group[0], group[1]
-        jong = group[2] if len(group) == 3 else ""
-        cho_idx = CHOSUNG_LIST.index(cho)
-        jung_idx = JUNGSUNG_LIST.index(jung)
-        jong_idx = JONGSUNG_LIST.index(jong) if jong else 0
-        result += chr(0xAC00 + cho_idx * 588 + jung_idx * 28 + jong_idx)
+    i = 0
+    while i < len(jamos):
+        if jamos[i] in CHOSUNG_LIST:
+            cho = CHOSUNG_LIST.index(jamos[i])
+            if i+1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
+                jung = JUNGSUNG_LIST.index(jamos[i+1])
+                jong = 0
+                if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                    jong = JONGSUNG_LIST.index(jamos[i+2])
+                    i += 1
+                result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
+                i += 2
+            else:
+                result += jamos[i]
+                i += 1
+        else:
+            result += jamos[i]
+            i += 1
     return result
 
-st.set_page_config(page_title="기호 한글 변환기")
-st.title("ᚠ𐔀 고대 기호 한글 변환기")
+# Streamlit 앱 시작
+st.set_page_config(page_title="고대 문자 한글 변환기")
+st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -60,57 +52,70 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
+# 한글 → 기호
 with tabs[0]:
-    input_text = st.text_area("한글 입력", height=150)
-    if st.button("기호로 변환하기"):
+    input_text = st.text_area("한글 입력", height=150, key="input1")
+    if st.button("기호로 변환하기", key="to_symbols"):
         result = ""
         for char in input_text:
-            if unicodedata.name(char, '').startswith("HANGUL"):
-                decomposed = list(j2hcj(h2j(char)))
-                if len(decomposed) == 3:
-                    cho, jung, jong = decomposed
-                    result += decompose_chosung.get(cho, cho)
-                    result += decompose_jungsung.get(jung, jung)
-                    result += decompose_jongsung.get(jong, jong)
-                elif len(decomposed) == 2:
-                    cho, jung = decomposed
-                    result += decompose_chosung.get(cho, cho)
-                    result += decompose_jungsung.get(jung, jung)
-            elif char == " ":
+            if char == " ":
                 result += SPACE_SYMBOL
+            elif is_hangul_char(char):
+                decomposed = list(j2hcj(h2j(char)))
+                cho = decomposed[0]
+                jung = decomposed[1]
+                jong = decomposed[2] if len(decomposed) == 3 else ''
+                result += decompose_chosung.get(cho, cho)
+                result += decompose_jungsung.get(jung, jung)
+                result += decompose_jongsung.get(jong, jong)
             else:
                 result += char
         st.session_state.symbol_result = result
 
-    st.text_area("기호 출력", st.session_state.symbol_result, height=150)
+    if st.session_state.symbol_result:
+        st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
+# 기호 → 한글
 with tabs[1]:
-    symbol_input = st.text_area("기호 입력", height=150)
-    if st.button("한글로 되돌리기"):
-        jamo_groups = []
+    symbol_input = st.text_area("기호 입력", height=150, key="input2")
+    if st.button("한글로 되돌리기", key="to_korean"):
+        jamo_result = []
         i = 0
         while i < len(symbol_input):
-            if symbol_input[i] == SPACE_SYMBOL:
-                jamo_groups.append([" "])
-                i += 1
-                continue
-            if symbol_input[i] in reverse_chosung:
-                cho = reverse_chosung[symbol_input[i]]
-                jung = ''
-                jong = ''
-                i += 1
-                if i < len(symbol_input) and symbol_input[i] in reverse_jungsung:
-                    jung = reverse_jungsung[symbol_input[i]]
-                    i += 1
-                    if i < len(symbol_input) and symbol_input[i] in reverse_jongsung:
-                        lookahead = symbol_input[i+1] if i+1 < len(symbol_input) else ''
-                        if lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead == '':
-                            jong = reverse_jongsung[symbol_input[i]]
-                            i += 1
-                group = [cho, jung] + ([jong] if jong else [])
-                jamo_groups.append(group)
-            else:
-                i += 1
-        st.session_state.hangul_result = join_jamos_manual_groups(jamo_groups)
+            ch = symbol_input[i]
+            next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
+            next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
+            next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
 
-    st.text_area("복원된 한글", st.session_state.hangul_result, height=150)
+            if ch in reverse_chosung:
+                cho = reverse_chosung[ch]
+                if next_ch in reverse_jungsung:
+                    jung = reverse_jungsung[next_ch]
+                    if next_next_ch in reverse_jongsung and (
+                        next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 == ''
+                    ):
+                        jong = reverse_jongsung[next_next_ch]
+                        jamo_result.extend([cho, jung, jong])
+                        i += 3
+                    else:
+                        jamo_result.extend([cho, jung])
+                        i += 2
+                else:
+                    jamo_result.append(cho)
+                    i += 1
+            elif ch == SPACE_SYMBOL:
+                jamo_result.append(' ')
+                i += 1
+            elif ch in reverse_jongsung:
+                jamo_result.append(reverse_jongsung[ch])
+                i += 1
+            else:
+                jamo_result.append(ch)
+                i += 1
+
+        result = join_jamos_manual(jamo_result)
+        st.session_state.hangul_result = result
+
+    if st.session_state.hangul_result:
+        st.markdown("### 복원된 한글:")
+        st.success(st.session_state.hangul_result)
