@@ -50,7 +50,6 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -75,7 +74,6 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
@@ -110,7 +108,10 @@ with tabs[1]:
                         lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == ''
                     ):
                         jong = reverse_jongsung[next_next_ch]
-                        debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                        debug_line = f"⮕ 종성 인식: {jong}"
+                        if jong:
+                            debug_line += f" (U+{ord(jong):04X})"
+                        debug_lines.append(debug_line)
                         jamo_result.extend([cho, jung, jong])
                         i += 3
                     else:
