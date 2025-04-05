@@ -28,22 +28,18 @@ def join_jamos_manual(jamos):
         if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
             jung = JUNGSUNG_LIST.index(jamos[i+1])
-            jong = 0  # ✅ 반드시 초기화!
-
+            jong = 0
             if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                 jong = JONGSUNG_LIST.index(jamos[i+2])
                 i += 3
             else:
                 i += 2
-
-            code = 0xAC00 + cho * 588 + jung * 28 + jong
-            result += chr(code)
+            result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
         else:
             result += jamos[i]
             i += 1
     return result
 
-# Streamlit 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -54,7 +50,6 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 🔁 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -79,7 +74,6 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
-# 🔁 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
