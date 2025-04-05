@@ -28,18 +28,22 @@ def join_jamos_manual(jamos):
         if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
             jung = JUNGSUNG_LIST.index(jamos[i+1])
+            jong = 0  # ✅ 반드시 초기화!
+
             if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                 jong = JONGSUNG_LIST.index(jamos[i+2])
-                result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
                 i += 3
             else:
-                result += chr(0xAC00 + cho * 588 + jung * 28)
                 i += 2
+
+            code = 0xAC00 + cho * 588 + jung * 28 + jong
+            result += chr(code)
         else:
             result += jamos[i]
             i += 1
     return result
 
+# Streamlit 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -50,6 +54,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
+# 🔁 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150, key="input1")
     if st.button("기호로 변환하기", key="to_symbols"):
@@ -74,67 +79,49 @@ with tabs[0]:
     if st.session_state.symbol_result:
         st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
 
+# 🔁 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
-        debug_lines = []
         i = 0
         while i < len(symbol_input):
             ch = symbol_input[i]
             next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
-            lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
-
-            debug_lines.append(f"[{i}] ▶ '{ch}'")
+            next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
 
             if ch == SPACE_SYMBOL:
                 jamo_result.append(' ')
-                debug_lines.append("⮕ 띄어쓰기 인식")
                 i += 1
             elif ch in reverse_special:
-                val = reverse_special[ch]
-                jamo_result.append(val)
-                debug_lines.append(f"⮕ 특수기호 인식: {val} (U+{ord(val):04X})")
+                jamo_result.append(reverse_special[ch])
                 i += 1
             elif ch in reverse_chosung:
                 if next_ch in reverse_jungsung:
                     cho = reverse_chosung[ch]
                     jung = reverse_jungsung[next_ch]
-                    debug_lines.append(f"⮕ 초성 인식: {cho} (U+{ord(cho):04X})")
-                    debug_lines.append(f"⮕ 중성 인식: {jung} (U+{ord(jung):04X})")
-
-                    if next_next_ch in reverse_jongsung and (
-                        lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == ''
-                    ):
-                        jong = reverse_jongsung[next_next_ch]
-                        debug_line = f"⮕ 종성 인식: {jong}"
-                        if jong:
-                            debug_line += f" (U+{ord(jong):04X})"
-                        debug_lines.append(debug_line)
-                        jamo_result.extend([cho, jung, jong])
-                        i += 3
+                    jong = ''
+                    if next_next_ch in reverse_jongsung:
+                        if next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 in reverse_special or next4 == '':
+                            jong = reverse_jongsung[next_next_ch]
+                            jamo_result.extend([cho, jung, jong])
+                            i += 3
+                        else:
+                            jamo_result.extend([cho, jung])
+                            i += 2
                     else:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    val = reverse_chosung[ch]
-                    jamo_result.append(val)
-                    debug_lines.append(f"⮕ 자음 단독 → 종성 처리: {val} (U+{ord(val):04X})")
+                    jamo_result.append(reverse_chosung[ch])
                     i += 1
             else:
                 jamo_result.append(ch)
-                debug_lines.append(f"⮕ 기타 문자: {ch}")
                 i += 1
 
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
-
-        st.markdown("### 🔍 디버그 로그:")
-        st.markdown("```")
-        for line in debug_lines:
-            st.markdown(line)
-        st.markdown("```")
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
