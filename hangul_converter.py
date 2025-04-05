@@ -86,28 +86,35 @@ with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
         jamo_result = []
+        debug_lines = []
         i = 0
         while i < len(symbol_input):
             ch = symbol_input[i]
             next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
 
+            debug_lines.append(f"[{i}] ▶ '{ch}'")
+
             if ch == SPACE_SYMBOL:
                 jamo_result.append(' ')
+                debug_lines.append("⮕ 띄어쓰기 인식")
                 i += 1
             elif ch in reverse_special:
                 jamo_result.append(reverse_special[ch])
+                debug_lines.append(f"⮕ 특수기호 인식: {reverse_special[ch]}")
                 i += 1
             elif ch in reverse_chosung:
                 if next_ch in reverse_jungsung:
                     cho = reverse_chosung[ch]
                     jung = reverse_jungsung[next_ch]
-                    jong = ''
+                    debug_lines.append(f"⮕ 초성 인식: {cho}")
+                    debug_lines.append(f"⮕ 중성 인식: {jung}")
                     if next_next_ch in reverse_jongsung:
-                        next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
-                        if next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 in reverse_special or next4 == '':
+                        lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
+                        if lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == '':
                             jong = reverse_jongsung[next_next_ch]
                             jamo_result.extend([cho, jung, jong])
+                            debug_lines.append(f"⮕ 종성 인식: {jong}")
                             i += 3
                         else:
                             jamo_result.extend([cho, jung])
@@ -116,19 +123,22 @@ with tabs[1]:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    # ✅ 중성이 없고 다음이 띄어쓰기 기호이면 종성 처리
-                    if next_ch == SPACE_SYMBOL or next_ch in reverse_chosung or next_ch in reverse_special or next_ch == '':
-                        jamo_result.append(reverse_chosung[ch])
-                        i += 1
-                    else:
-                        jamo_result.append(reverse_chosung[ch])
-                        i += 1
+                    jamo_result.append(reverse_chosung[ch])
+                    debug_lines.append(f"⮕ 자음 단독 → 종성 처리: {reverse_chosung[ch]}")
+                    i += 1
             else:
                 jamo_result.append(ch)
+                debug_lines.append(f"⮕ 기타 문자: {ch}")
                 i += 1
 
         result = join_jamos_manual(jamo_result)
         st.session_state.hangul_result = result
+
+        st.markdown("### 🔍 디버그 로그:")
+        st.markdown("```")
+        for line in debug_lines:
+            st.markdown(line)
+        st.markdown("```")
 
     if st.session_state.hangul_result:
         st.markdown("### 복원된 한글:")
