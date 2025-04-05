@@ -40,7 +40,6 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-# Streamlit 앱 시작
 st.set_page_config(page_title="고대 문자 한글 변환기")
 st.title("ᚠ𐔀 고대 문자 한글 변환기")
 
@@ -95,21 +94,22 @@ with tabs[1]:
                 debug_lines.append("⮕ 띄어쓰기 인식")
                 i += 1
             elif ch in reverse_special:
-                jamo_result.append(reverse_special[ch])
-                debug_lines.append(f"⮕ 특수기호 인식: {reverse_special[ch]}")
+                val = reverse_special[ch]
+                jamo_result.append(val)
+                debug_lines.append(f"⮕ 특수기호 인식: {val} (U+{ord(val):04X})")
                 i += 1
             elif ch in reverse_chosung:
                 if next_ch in reverse_jungsung:
                     cho = reverse_chosung[ch]
                     jung = reverse_jungsung[next_ch]
-                    debug_lines.append(f"⮕ 초성 인식: {cho}")
-                    debug_lines.append(f"⮕ 중성 인식: {jung}")
+                    debug_lines.append(f"⮕ 초성 인식: {cho} (U+{ord(cho):04X})")
+                    debug_lines.append(f"⮕ 중성 인식: {jung} (U+{ord(jung):04X})")
                     if next_next_ch in reverse_jongsung:
                         lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
                         if lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == '':
                             jong = reverse_jongsung[next_next_ch]
+                            debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
                             jamo_result.extend([cho, jung, jong])
-                            debug_lines.append(f"⮕ 종성 인식: {jong}")
                             i += 3
                         else:
                             jamo_result.extend([cho, jung])
@@ -118,8 +118,9 @@ with tabs[1]:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    jamo_result.append(reverse_chosung[ch])
-                    debug_lines.append(f"⮕ 자음 단독 → 종성 처리: {reverse_chosung[ch]}")
+                    val = reverse_chosung[ch]
+                    jamo_result.append(val)
+                    debug_lines.append(f"⮕ 자음 단독 → 종성 처리: {val} (U+{ord(val):04X})")
                     i += 1
             else:
                 jamo_result.append(ch)
