@@ -108,7 +108,10 @@ with tabs[1]:
                         lookahead = symbol_input[i+3] if i+3 < len(symbol_input) else ''
                         if lookahead in reverse_chosung or lookahead == SPACE_SYMBOL or lookahead in reverse_special or lookahead == '':
                             jong = reverse_jongsung[next_next_ch]
-                            debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                            if jong:
+                                debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                            else:
+                                debug_lines.append("⮕ 종성 없음")
                             jamo_result.extend([cho, jung, jong])
                             i += 3
                         else:
