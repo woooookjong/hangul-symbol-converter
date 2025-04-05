@@ -2,8 +2,6 @@ import streamlit as st
 from jamo import h2j, j2hcj
 import unicodedata
 
-SPACE_SYMBOL = '𐤟'
-
 CHOSUNG_LIST = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
 JUNGSUNG_LIST = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ']
 JONGSUNG_LIST = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ']
@@ -32,7 +30,7 @@ def join_jamos_manual(jamos):
                 jong = 0
                 if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
                     next_j = jamos[i+3] if i+3 < len(jamos) else ''
-                    if next_j in CHOSUNG_LIST or next_j == SPACE_SYMBOL or next_j in reverse_special or next_j == '':
+                    if next_j in CHOSUNG_LIST or next_j in reverse_special or next_j == '' or next_j == ' ':
                         jong = JONGSUNG_LIST.index(jamos[i+2])
                         i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
@@ -62,7 +60,7 @@ with tabs[0]:
         result = ""
         for char in input_text:
             if char == " ":
-                result += SPACE_SYMBOL
+                result += " "
             elif char in special_symbols:
                 result += special_symbols[char]
             elif is_hangul_char(char):
@@ -92,7 +90,7 @@ with tabs[1]:
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
             next_3 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
 
-            if ch == SPACE_SYMBOL:
+            if ch == ' ':
                 jamo_result.append(' ')
                 i += 1
             elif ch in reverse_special:
@@ -104,7 +102,7 @@ with tabs[1]:
                     jung = reverse_jungsung[next_ch]
                     jong = ''
                     if next_next_ch in reverse_jongsung:
-                        if next_3 in reverse_chosung or next_3 == SPACE_SYMBOL or next_3 in reverse_special or next_3 == '':
+                        if next_3 in reverse_chosung or next_3 in reverse_special or next_3 == '' or next_3 == ' ':
                             jong = reverse_jongsung[next_next_ch]
                             jamo_result.extend([cho, jung, jong])
                             i += 3
@@ -118,12 +116,11 @@ with tabs[1]:
                     jamo_result.append(reverse_chosung[ch])
                     i += 1
             elif ch in reverse_jongsung:
-                # ✅ 종성 전용 기호가 초성으로 오해되지 않도록 조건 보완
                 next_char = symbol_input[i+1] if i+1 < len(symbol_input) else ''
-                if next_char == SPACE_SYMBOL or next_char in reverse_chosung or next_char in reverse_special or next_char == '':
+                if next_char in reverse_chosung or next_char in reverse_special or next_char == '' or next_char == ' ':
                     jamo_result.append(reverse_jongsung[ch])
                 else:
-                    jamo_result.append(reverse_jongsung[ch])  # fallback
+                    jamo_result.append(reverse_jongsung[ch])
                 i += 1
             else:
                 jamo_result.append(ch)
