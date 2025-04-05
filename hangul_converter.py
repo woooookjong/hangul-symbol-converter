@@ -25,21 +25,16 @@ def join_jamos_manual(jamos):
     result = ""
     i = 0
     while i < len(jamos):
-        if jamos[i] in CHOSUNG_LIST:
+        if i + 1 < len(jamos) and jamos[i] in CHOSUNG_LIST and jamos[i+1] in JUNGSUNG_LIST:
             cho = CHOSUNG_LIST.index(jamos[i])
-            if i+1 < len(jamos) and jamos[i+1] in JUNGSUNG_LIST:
-                jung = JUNGSUNG_LIST.index(jamos[i+1])
-                jong = 0
-                if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    next_j = jamos[i+3] if i+3 < len(jamos) else ''
-                    if next_j in CHOSUNG_LIST or next_j == SPACE_SYMBOL or next_j in reverse_special or next_j == '':
-                        jong = JONGSUNG_LIST.index(jamos[i+2])
-                        i += 1
+            jung = JUNGSUNG_LIST.index(jamos[i+1])
+            if i + 2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
+                jong = JONGSUNG_LIST.index(jamos[i+2])
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
-                i += 2
+                i += 3
             else:
-                result += jamos[i]
-                i += 1
+                result += chr(0xAC00 + cho * 588 + jung * 28)
+                i += 2
         else:
             result += jamos[i]
             i += 1
