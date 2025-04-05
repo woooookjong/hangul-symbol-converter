@@ -50,32 +50,7 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
-with tabs[0]:
-    input_text = st.text_area("한글 입력", height=150, key="input1")
-    if st.button("기호로 변환하기", key="to_symbols"):
-        result = ""
-        for char in input_text:
-            if char == " ":
-                result += SPACE_SYMBOL
-            elif char in special_symbols:
-                result += special_symbols[char]
-            elif is_hangul_char(char):
-                decomposed = list(j2hcj(h2j(char)))
-                cho = decomposed[0]
-                jung = decomposed[1]
-                jong = decomposed[2] if len(decomposed) == 3 else ''
-                result += decompose_chosung.get(cho, cho)
-                result += decompose_jungsung.get(jung, jung)
-                result += decompose_jongsung.get(jong, jong)
-            else:
-                result += char
-        st.session_state.symbol_result = result
-
-    if st.session_state.symbol_result:
-        st.text_area("기호 출력", st.session_state.symbol_result, height=150, key="output1")
-
-# 기호 → 한글 (디버그 포함)
+# 기호 → 한글 (디버깅 포함)
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150, key="input2")
     if st.button("한글로 되돌리기", key="to_korean"):
@@ -108,7 +83,10 @@ with tabs[1]:
                     if next_next_ch in reverse_jongsung:
                         if next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 in reverse_special or next4 == '':
                             jong = reverse_jongsung[next_next_ch]
-                            debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                            if jong:
+                                debug_lines.append(f"⮕ 종성 인식: {jong} (U+{ord(jong):04X})")
+                            else:
+                                debug_lines.append("⮕ 종성 없음")
                             jamo_result.extend([cho, jung, jong])
                             i += 3
                         else:
@@ -125,16 +103,13 @@ with tabs[1]:
                 jamo_result.append(ch)
                 i += 1
 
+        result = join_jamos_manual(jamo_result)
         st.markdown("### 🔍 디버그 로그:")
         st.code('\n'.join(debug_lines))
-
         st.markdown("### ✅ 자모 디버깅:")
         st.code(" ".join(jamo_result))
-
-        result = join_jamos_manual(jamo_result)
         st.markdown("### 🔡 복원된 한글:")
         st.success(result)
-
         st.markdown("### 🧪 유니코드 값:")
         unicode_values = [f"U+{ord(c):04X}" for c in result]
         st.code(", ".join(unicode_values))
