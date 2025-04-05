@@ -4,7 +4,6 @@ import unicodedata
 
 SPACE_SYMBOL = '𐤟'
 
-# 초성 (ᚠ~ᚲ: 룬 문자)
 decompose_chosung = {
     'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', 'ㄸ': 'ᚤ',
     'ㄹ': 'ᚥ', 'ㅁ': 'ᚦ', 'ㅂ': 'ᚧ', 'ㅃ': 'ᚨ', 'ㅅ': 'ᚩ',
@@ -12,15 +11,14 @@ decompose_chosung = {
     'ㅋ': 'ᚯ', 'ㅌ': 'ᚰ', 'ㅍ': 'ᚱ', 'ㅎ': 'ᚲ'
 }
 
-# 중성 (ⴰ~ⵄ: 비슷한 스타일 문자)
 decompose_jungsung = {
-    'ㅏ': 'ⴰ', 'ㅐ': 'ⴱ', 'ㅑ': 'ⴲ', 'ㅒ': 'ⴳ', 'ㅓ': 'ⴴ',
-    'ㅔ': 'ⴵ', 'ㅕ': 'ⴶ', 'ㅖ': 'ⴷ', 'ㅗ': 'ⴸ', 'ㅛ': 'ⴹ',
-    'ㅜ': 'ⴺ', 'ㅠ': 'ⴻ', 'ㅡ': 'ⴼ', 'ㅣ': 'ⴽ',
-    'ㅘ': 'ⴾ', 'ㅙ': 'ⴿ', 'ㅚ': 'ⵀ', 'ㅝ': 'ⵁ', 'ㅞ': 'ⵂ', 'ㅟ': 'ⵃ', 'ㅢ': 'ⵄ'
+    'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄',
+    'ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅛ': '𐔉',
+    'ㅜ': '𐔊', 'ㅠ': '𐔋', 'ㅡ': '𐔌', 'ㅣ': '𐔍',
+    'ㅘ': '𐔎', 'ㅙ': '𐔏', 'ㅚ': '𐔐', 'ㅝ': '𐔑',
+    'ㅞ': '𐔒', 'ㅟ': '𐔓', 'ㅢ': '𐔔'
 }
 
-# 종성 (ᛅ~ᛟ: 룬 확장)
 decompose_jongsung = {
     '': '', 'ㄱ': 'ᛅ', 'ㄲ': 'ᛆ', 'ㄳ': 'ᛇ', 'ㄴ': 'ᛈ',
     'ㄵ': 'ᛉ', 'ㄶ': 'ᛊ', 'ㄷ': 'ᛋ', 'ㄹ': 'ᛌ', 'ㄺ': 'ᛍ',
@@ -30,7 +28,6 @@ decompose_jongsung = {
     'ㅌ': 'ᛝ', 'ㅍ': 'ᛞ', 'ㅎ': 'ᛟ'
 }
 
-# 역변환
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -39,7 +36,6 @@ CHOSUNG_LIST = list(decompose_chosung.keys())
 JUNGSUNG_LIST = list(decompose_jungsung.keys())
 JONGSUNG_LIST = list(decompose_jongsung.keys())
 
-# 자모 결합
 def join_jamos_manual_groups(jamo_groups):
     result = ""
     for group in jamo_groups:
@@ -54,9 +50,8 @@ def join_jamos_manual_groups(jamo_groups):
         result += chr(0xAC00 + cho_idx * 588 + jung_idx * 28 + jong_idx)
     return result
 
-# 앱 시작
 st.set_page_config(page_title="기호 한글 변환기")
-st.title("ᚠⴰ 고대 기호 한글 변환기")
+st.title("ᚠ𐔀 고대 기호 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
@@ -65,7 +60,6 @@ if "symbol_result" not in st.session_state:
 if "hangul_result" not in st.session_state:
     st.session_state.hangul_result = ""
 
-# 한글 → 기호
 with tabs[0]:
     input_text = st.text_area("한글 입력", height=150)
     if st.button("기호로 변환하기"):
@@ -90,7 +84,6 @@ with tabs[0]:
 
     st.text_area("기호 출력", st.session_state.symbol_result, height=150)
 
-# 기호 → 한글
 with tabs[1]:
     symbol_input = st.text_area("기호 입력", height=150)
     if st.button("한글로 되돌리기"):
