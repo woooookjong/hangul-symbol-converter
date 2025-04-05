@@ -12,6 +12,8 @@ decompose_chosung = {'ㄱ': 'ᚠ', 'ㄲ': 'ᚡ', 'ㄴ': 'ᚢ', 'ㄷ': 'ᚣ', '�
 decompose_jungsung = {'ㅏ': '𐔀', 'ㅐ': '𐔁', 'ㅑ': '𐔂', 'ㅒ': '𐔃', 'ㅓ': '𐔄','ㅔ': '𐔅', 'ㅕ': '𐔆', 'ㅖ': '𐔇', 'ㅗ': '𐔈', 'ㅘ': '𐔉','ㅙ': '𐔊', 'ㅚ': '𐔋', 'ㅛ': '𐔌', 'ㅜ': '𐔍', 'ㅝ': '𐔎','ㅞ': '𐔏', 'ㅟ': '𐔐', 'ㅠ': '𐔑', 'ㅡ': '𐔒', 'ㅢ': '𐔓', 'ㅣ': '𐔔'}
 decompose_jongsung = {'': '', 'ㄱ': 'ᚳ', 'ㄲ': 'ᚴ', 'ㄳ': 'ᚵ', 'ㄴ': 'ᚶ','ㄵ': 'ᚷ', 'ㄶ': 'ᚸ', 'ㄷ': 'ᚹ', 'ㄹ': 'ᚺ', 'ㄺ': 'ᚻ','ㄻ': 'ᚼ', 'ㄼ': 'ᚽ', 'ㄽ': 'ᚾ', 'ㄾ': 'ᚿ', 'ㄿ': 'ᛀ','ㅀ': 'ᛁ', 'ㅁ': 'ᛂ', 'ㅂ': 'ᛃ', 'ㅄ': 'ᛄ', 'ㅅ': 'ᛅ','ㅆ': 'ᛆ', 'ㅇ': 'ᛇ', 'ㅈ': 'ᛈ', 'ㅊ': 'ᛉ', 'ㅋ': 'ᛊ','ㅌ': 'ᛋ', 'ㅍ': 'ᛌ', 'ㅎ': 'ᛍ'}
 
+special_symbols = {'?': 'ꡞ', '!': '႟', '.': '꘏', ',': '᛬'}
+reverse_special = {v: k for k, v in special_symbols.items()}
 reverse_chosung = {v: k for k, v in decompose_chosung.items()}
 reverse_jungsung = {v: k for k, v in decompose_jungsung.items()}
 reverse_jongsung = {v: k for k, v in decompose_jongsung.items()}
@@ -29,8 +31,10 @@ def join_jamos_manual(jamos):
                 jung = JUNGSUNG_LIST.index(jamos[i+1])
                 jong = 0
                 if i+2 < len(jamos) and jamos[i+2] in JONGSUNG_LIST:
-                    jong = JONGSUNG_LIST.index(jamos[i+2])
-                    i += 1
+                    next_j = jamos[i+3] if i+3 < len(jamos) else ''
+                    if next_j in CHOSUNG_LIST or next_j == SPACE_SYMBOL or next_j in reverse_special or next_j == '':
+                        jong = JONGSUNG_LIST.index(jamos[i+2])
+                        i += 1
                 result += chr(0xAC00 + cho * 588 + jung * 28 + jong)
                 i += 2
             else:
@@ -60,6 +64,8 @@ with tabs[0]:
         for char in input_text:
             if char == " ":
                 result += SPACE_SYMBOL
+            elif char in special_symbols:
+                result += special_symbols[char]
             elif is_hangul_char(char):
                 decomposed = list(j2hcj(h2j(char)))
                 cho = decomposed[0]
@@ -85,30 +91,38 @@ with tabs[1]:
             ch = symbol_input[i]
             next_ch = symbol_input[i+1] if i+1 < len(symbol_input) else ''
             next_next_ch = symbol_input[i+2] if i+2 < len(symbol_input) else ''
-            next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
 
-            if ch in reverse_chosung:
-                cho = reverse_chosung[ch]
+            if ch == SPACE_SYMBOL:
+                jamo_result.append(' ')
+                i += 1
+            elif ch in reverse_special:
+                jamo_result.append(reverse_special[ch])
+                i += 1
+            elif ch in reverse_chosung:
                 if next_ch in reverse_jungsung:
+                    cho = reverse_chosung[ch]
                     jung = reverse_jungsung[next_ch]
-                    if next_next_ch in reverse_jongsung and (
-                        next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 == ''
-                    ):
-                        jong = reverse_jongsung[next_next_ch]
-                        jamo_result.extend([cho, jung, jong])
-                        i += 3
+                    jong = ''
+                    if next_next_ch in reverse_jongsung:
+                        next4 = symbol_input[i+3] if i+3 < len(symbol_input) else ''
+                        if next4 in reverse_chosung or next4 == SPACE_SYMBOL or next4 in reverse_special or next4 == '':
+                            jong = reverse_jongsung[next_next_ch]
+                            jamo_result.extend([cho, jung, jong])
+                            i += 3
+                        else:
+                            jamo_result.extend([cho, jung])
+                            i += 2
                     else:
                         jamo_result.extend([cho, jung])
                         i += 2
                 else:
-                    jamo_result.append(cho)
-                    i += 1
-            elif ch == SPACE_SYMBOL:
-                jamo_result.append(' ')
-                i += 1
-            elif ch in reverse_jongsung:
-                jamo_result.append(reverse_jongsung[ch])
-                i += 1
+                    # ✅ 중성이 없고 다음이 띄어쓰기 기호이면 종성 처리
+                    if next_ch == SPACE_SYMBOL or next_ch in reverse_chosung or next_ch in reverse_special or next_ch == '':
+                        jamo_result.append(reverse_chosung[ch])
+                        i += 1
+                    else:
+                        jamo_result.append(reverse_chosung[ch])
+                        i += 1
             else:
                 jamo_result.append(ch)
                 i += 1
