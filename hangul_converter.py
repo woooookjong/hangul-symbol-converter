@@ -43,8 +43,8 @@ def join_jamos_manual(jamos):
             i += 1
     return result
 
-st.set_page_config(page_title="고대 문자 한글 변환기")
-st.title("ᚠ𐔀 고대 문자 한글 변환기")
+st.set_page_config(page_title="아르카키 - 고대 문자 한글 변환기")
+st.title("🔤 아르카키 : 고대 문자 ↔ 한글 변환기")
 
 tabs = st.tabs(["한글 → 기호", "기호 → 한글"])
 
